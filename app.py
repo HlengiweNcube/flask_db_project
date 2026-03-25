@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from models import db
+from models import db, Outfit
 
 app = Flask(__name__)
 
@@ -12,9 +12,16 @@ db.init_app(app)
 def home():
     return render_template("home.html")
 
+with app.app_context():
+    test = Outfit(name="Test", category="Ankara", description="Test desc", image_url="https://via.placeholder.com/150")
+    db.session.add(test)
+    db.session.commit()
+
 @app.route('/gallery')
 def gallery():
-    return render_template("gallery.html")
+    outfits = Outfit.query.all()
+    print(outfits)  # DEBUG LINE
+    return render_template('gallery.html', outfits=outfits)
 
 from flask import request, redirect
 from models import Outfit, db
@@ -41,6 +48,13 @@ def about():
 @app.route('/contact')
 def contact():
     return render_template("contact.html")
+
+@app.route('/delete/<int:id>')
+def delete(id):
+    outfit = Outfit.query.get(id)
+    db.session.delete(outfit)
+    db.session.commit()
+    return redirect('/gallery')
 
 if __name__ == '__main__':
     app.run(debug=True)
