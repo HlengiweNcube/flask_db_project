@@ -56,5 +56,20 @@ def delete(id):
     db.session.commit()
     return redirect('/gallery')
 
+@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+def edit(id):
+    outfit = Outfit.query.get(id)
+
+    if request.method == 'POST':
+        outfit.name = request.form['name']
+        outfit.category = request.form['category']
+        outfit.description = request.form['description']
+        outfit.image_url = request.form['image_url']
+
+        db.session.commit()
+        return redirect('/gallery')
+
+    return render_template('edit_outfit.html', outfit=outfit)
+
 if __name__ == '__main__':
     app.run(debug=True)

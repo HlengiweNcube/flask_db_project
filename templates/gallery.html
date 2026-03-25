@@ -7,6 +7,7 @@
     {% if outfits %}
         {% for outfit in outfits %}
          <a href="/delete/{{ outfit.id }}" class="delete-btn">Delete</a>
+         <a href="/edit/{{ outfit.id }}" class="edit-btn">Edit</a>
             <div class="card">
                 <h3>{{ outfit.name }}</h3>
                 <p class="category">{{ outfit.category }}</p>
