@@ -168,7 +168,7 @@ Each commit will represent a clear development step.
 
 ## 10. Future Enhancements
 
-* User authentication system
+* User authentication system 
 * Image upload functionality
 * Search and filtering
 * Improved UI/UX design
