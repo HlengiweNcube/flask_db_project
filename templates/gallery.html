@@ -2,5 +2,20 @@
 
 {% block content %}
 <h1>Gallery</h1>
-<p>All outfits will appear here.</p>
+
+<div class="gallery-container">
+    {% if outfits %}
+        {% for outfit in outfits %}
+            <div class="card">
+                <h3>{{ outfit.name }}</h3>
+                <p class="category">{{ outfit.category }}</p>
+                <p>{{ outfit.description }}</p>
+                <img src="{{ outfit.image_url }}" alt="Outfit image">
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No outfits available.</p>
+    {% endif %}
+</div>
+
 {% endblock %}

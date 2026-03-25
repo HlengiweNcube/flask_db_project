@@ -1,0 +1,25 @@
+.gallery-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 15px;
+    width: 250px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.card img {
+    width: 100%;
+    border-radius: 5px;
+}
+
+.category {
+    font-weight: bold;
+    color: #444;
+}
