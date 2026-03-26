@@ -12,11 +12,6 @@ db.init_app(app)
 def home():
     return render_template("home.html")
 
-with app.app_context():
-    test = Outfit(name="Test", category="Ankara", description="Test desc", image_url="https://via.placeholder.com/150")
-    db.session.add(test)
-    db.session.commit()
-
 @app.route('/gallery')
 def gallery():
     women = Outfit.query.filter_by(category='Women').all()
