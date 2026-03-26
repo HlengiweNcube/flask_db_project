@@ -71,3 +71,26 @@ h2 {
     height: 250px;
     object-fit: cover;
 }
+.tabs {
+    margin-bottom: 20px;
+}
+
+.tabs button {
+    padding: 10px 15px;
+    margin-right: 10px;
+    border: none;
+    background: black;
+    color: white;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.tabs button:hover {
+    background: #444;
+}
+
+.tab-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}

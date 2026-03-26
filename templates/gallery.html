@@ -3,49 +3,49 @@
 {% block content %}
 <h1>African Fashion Gallery</h1>
 
-<h2>Women</h2>
-<div class="gallery-container">
+<div class="tabs">
+    <button type="button" onclick="showCategory('women')">Women</button>
+    <button type="button" onclick="showCategory('men')">Men</button>
+    <button type="button" onclick="showCategory('teens')">Teens</button>
+    <button type="button" onclick="showCategory('children')">Children</button>
+</div>
+
+<div id="women" class="tab-content">
     {% for outfit in women %}
         <div class="card">
             <img src="{{ outfit.image_url }}" alt="{{ outfit.name }}">
             <h3>{{ outfit.name }}</h3>
-            <p>{{ outfit.description }}</p>
         </div>
     {% endfor %}
 </div>
 
-<h2>Men</h2>
-<div class="gallery-container">
+<div id="men" class="tab-content" style="display:none;">
     {% for outfit in men %}
         <div class="card">
             <img src="{{ outfit.image_url }}" alt="{{ outfit.name }}">
             <h3>{{ outfit.name }}</h3>
-            <p>{{ outfit.description }}</p>
         </div>
     {% endfor %}
 </div>
 
-<h2>Teens</h2>
-<div class="gallery-container">
+<div id="teens" class="tab-content" style="display:none;">
     {% for outfit in teens %}
         <div class="card">
             <img src="{{ outfit.image_url }}" alt="{{ outfit.name }}">
             <h3>{{ outfit.name }}</h3>
-            <p>{{ outfit.description }}</p>
         </div>
     {% endfor %}
 </div>
 
-<h2>Children</h2>
-<div class="gallery-container">
+<div id="children" class="tab-content" style="display:none;">
     {% for outfit in children %}
         <div class="card">
             <img src="{{ outfit.image_url }}" alt="{{ outfit.name }}">
             <h3>{{ outfit.name }}</h3>
-            <p>{{ outfit.description }}</p>
         </div>
     {% endfor %}
 </div>
+
 <form method="GET">
     <input type="text" name="category" placeholder="Filter by category">
     <button type="submit">Filter</button>
