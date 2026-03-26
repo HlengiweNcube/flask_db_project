@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect
 from models import db, Outfit
+from sqlalchemy import func
 
 app = Flask(__name__)
 
