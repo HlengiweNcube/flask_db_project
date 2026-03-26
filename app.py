@@ -19,9 +19,18 @@ with app.app_context():
 
 @app.route('/gallery')
 def gallery():
-    outfits = Outfit.query.all()
-    print(outfits)  # DEBUG LINE
-    return render_template('gallery.html', outfits=outfits)
+    women = Outfit.query.filter_by(category='Women').all()
+    men = Outfit.query.filter_by(category='Men').all()
+    teens = Outfit.query.filter_by(category='Teens').all()
+    children = Outfit.query.filter_by(category='Children').all()
+
+    return render_template(
+        'gallery.html',
+        women=women,
+        men=men,
+        teens=teens,
+        children=children
+    )
 
 from flask import request, redirect
 from models import Outfit, db

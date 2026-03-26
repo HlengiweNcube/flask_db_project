@@ -1,23 +1,55 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Gallery</h1>
+<h1>African Fashion Gallery</h1>
 
+<h2>Women</h2>
 <div class="gallery-container">
-    {% if outfits %}
-        {% for outfit in outfits %}
-         <a href="/delete/{{ outfit.id }}" class="delete-btn">Delete</a>
-         <a href="/edit/{{ outfit.id }}" class="edit-btn">Edit</a>
-            <div class="card">
-                <h3>{{ outfit.name }}</h3>
-                <p class="category">{{ outfit.category }}</p>
-                <p>{{ outfit.description }}</p>
-                <img src="{{ outfit.image_url }}" alt="Outfit image">
-            </div>
-        {% endfor %}
-    {% else %}
-        <p>No outfits available.</p>
-    {% endif %}
+    {% for outfit in women %}
+        <div class="card">
+            <img src="{{ outfit.image_url }}" alt="{{ outfit.name }}">
+            <h3>{{ outfit.name }}</h3>
+            <p>{{ outfit.description }}</p>
+        </div>
+    {% endfor %}
 </div>
 
+<h2>Men</h2>
+<div class="gallery-container">
+    {% for outfit in men %}
+        <div class="card">
+            <img src="{{ outfit.image_url }}" alt="{{ outfit.name }}">
+            <h3>{{ outfit.name }}</h3>
+            <p>{{ outfit.description }}</p>
+        </div>
+    {% endfor %}
+</div>
+
+<h2>Teens</h2>
+<div class="gallery-container">
+    {% for outfit in teens %}
+        <div class="card">
+            <img src="{{ outfit.image_url }}" alt="{{ outfit.name }}">
+            <h3>{{ outfit.name }}</h3>
+            <p>{{ outfit.description }}</p>
+        </div>
+    {% endfor %}
+</div>
+
+<h2>Children</h2>
+<div class="gallery-container">
+    {% for outfit in children %}
+        <div class="card">
+            <img src="{{ outfit.image_url }}" alt="{{ outfit.name }}">
+            <h3>{{ outfit.name }}</h3>
+            <p>{{ outfit.description }}</p>
+        </div>
+    {% endfor %}
+</div>
+<form method="GET">
+    <input type="text" name="category" placeholder="Filter by category">
+    <button type="submit">Filter</button>
+</form>
+<a href="/gallery?sort=asc">Sort A-Z</a>
+<a href="/gallery?sort=desc">Sort Z-A</a>
 {% endblock %}
