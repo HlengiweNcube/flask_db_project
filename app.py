@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect
 from models import db, Outfit
 
 app = Flask(__name__)
@@ -27,8 +27,7 @@ def gallery():
         children=children
     )
 
-from flask import request, redirect
-from models import Outfit, db
+
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():

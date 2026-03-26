@@ -3,4 +3,20 @@
 {% block content %}
 <h1>Add Outfit</h1>
 <p>All outfits will appear here.</p>
+
+<form method="POST">
+    <label>Name:</label><br>
+    <input type="text" name="name" required><br><br>
+
+    <label>Category:</label><br>
+    <input type="text" name="category"><br><br>
+
+    <label>Description:</label><br>
+    <textarea name="description"></textarea><br><br>
+
+    <label>Image URL:</label><br>
+    <input type="text" name="image_url"><br><br>
+
+    <button type="submit">Add Outfit</button>
+</form>
 {% endblock %}
