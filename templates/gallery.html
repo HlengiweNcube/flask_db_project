@@ -4,10 +4,7 @@
 
 <h1>African Fashion Gallery</h1>
 
-<h3>Outfits per Category</h3>
 <div class="top-bar">
-   
-    <!-- SEARCH (RIGHT) -->
     <form method="GET" class="search-box">
         <input type="text" name="search" placeholder="Search outfits..." value="{{ request.args.get('search','') }}">
         <button type="submit">Search</button>
@@ -16,7 +13,6 @@
 
 <div class="gallery-layout">
 
-    <!-- LEFT SIDEBAR -->
     <div class="sidebar">
         <button type="button" onclick="showCategory('all')">All</button>
         <button type="button" onclick="showCategory('Women')">Women</button>
@@ -25,11 +21,10 @@
         <button type="button" onclick="showCategory('Children')">Children</button>
     </div>
 
-    <!-- RIGHT GALLERY -->
     <div id="gallery" class="gallery-container">
         {% for outfit in outfits %}
             <div class="card" data-category="{{ outfit.category }}">
-                <img src="{{ outfit.image_url }}" alt="{{ outfit.name }}">
+                <img src="{{ url_for('static', filename='images/' + outfit.image_url) }}" alt="{{ outfit.name }}">
                 <h3>{{ outfit.name }}</h3>
                 <p>{{ outfit.category }}</p>
             </div>
@@ -37,12 +32,6 @@
     </div>
 
 </div>
-<ul>
-{% for category, total in category_counts %}
-    <li>{{ category }}: {{ total }}</li>
-{% endfor %}
-</ul>
-
 
 <h3>Outfits per Category</h3>
 <div class="stats">
