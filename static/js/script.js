@@ -1,15 +1,16 @@
 function showCategory(category) {
-    const sections = document.querySelectorAll(".tab-content");
-    sections.forEach(section => {
-        section.style.display = "none";
-    });
+    let cards = document.querySelectorAll(".card");
 
-    document.getElementById(category).style.display = "flex";
+    cards.forEach(card => {
+        if (category === "all" || card.dataset.category === category) {
+            card.style.display = "block";
+        } else {
+            card.style.display = "none";
+        }
+    });
 }
-// Interaction 1: alert on page load
 console.log("Website loaded");
 
-// Interaction 2: simple form validation
 function validateForm() {
     let name = document.getElementById("name").value;
 
@@ -19,7 +20,23 @@ function validateForm() {
     }
 }
 
-// Interaction 3: DOM manipulation
 function changeTitle() {
     document.querySelector("h2").innerText = "Welcome to African Fashion!";
+}
+let currentSlide = 0;
+
+function showSlide(index) {
+    let slides = document.querySelectorAll(".slide");
+
+    if (index >= slides.length) currentSlide = 0;
+    if (index < 0) currentSlide = slides.length - 1;
+
+    slides.forEach(slide => slide.classList.remove("active"));
+
+    slides[currentSlide].classList.add("active");
+}
+
+function changeSlide(direction) {
+    currentSlide += direction;
+    showSlide(currentSlide);
 }

@@ -1,55 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <h1>African Fashion Gallery</h1>
-
-<div class="tabs">
-    <button type="button" onclick="showCategory('women')">Women</button>
-    <button type="button" onclick="showCategory('men')">Men</button>
-    <button type="button" onclick="showCategory('teens')">Teens</button>
-    <button type="button" onclick="showCategory('children')">Children</button>
-</div>
-
-<div id="women" class="tab-content">
-    {% for outfit in women %}
-        <div class="card">
-            <img src="{{ outfit.image_url }}" alt="{{ outfit.name }}">
-            <h3>{{ outfit.name }}</h3>
-        </div>
-    {% endfor %}
-</div>
-
-<div id="men" class="tab-content" style="display:none;">
-    {% for outfit in men %}
-        <div class="card">
-            <img src="{{ outfit.image_url }}" alt="{{ outfit.name }}">
-            <h3>{{ outfit.name }}</h3>
-        </div>
-    {% endfor %}
-</div>
-
-<div id="teens" class="tab-content" style="display:none;">
-    {% for outfit in teens %}
-        <div class="card">
-            <img src="{{ outfit.image_url }}" alt="{{ outfit.name }}">
-            <h3>{{ outfit.name }}</h3>
-        </div>
-    {% endfor %}
-</div>
-
-<div id="children" class="tab-content" style="display:none;">
-    {% for outfit in children %}
-        <div class="card">
-            <img src="{{ outfit.image_url }}" alt="{{ outfit.name }}">
-            <h3>{{ outfit.name }}</h3>
-        </div>
-    {% endfor %}
-</div>
 
 <form method="GET">
     <input type="text" name="category" placeholder="Filter by category">
     <button type="submit">Filter</button>
 </form>
+
 <a href="/gallery?sort=asc">Sort A-Z</a>
 <a href="/gallery?sort=desc">Sort Z-A</a>
+
+<div class="tabs">
+    <button type="button" onclick="showCategory('all')">All</button>
+    <button type="button" onclick="showCategory('Women')">Women</button>
+    <button type="button" onclick="showCategory('Men')">Men</button>
+    <button type="button" onclick="showCategory('Teens')">Teens</button>
+    <button type="button" onclick="showCategory('Children')">Children</button>
+</div>
+
+<div id="gallery" class="gallery-container">
+    {% for outfit in outfits %}
+        <div class="card" data-category="{{ outfit.category }}">
+            <img src="{{ outfit.image_url }}" alt="{{ outfit.name }}">
+            <h3>{{ outfit.name }}</h3>
+            <p>{{ outfit.category }}</p>
+        </div>
+    {% endfor %}
+</div>
 {% endblock %}

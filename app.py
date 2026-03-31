@@ -15,20 +15,17 @@ def home():
 
 @app.route('/gallery')
 def gallery():
-    women = Outfit.query.filter_by(category='Women').all()
-    men = Outfit.query.filter_by(category='Men').all()
-    teens = Outfit.query.filter_by(category='Teens').all()
-    children = Outfit.query.filter_by(category='Children').all()
-
-    return render_template(
-        'gallery.html',
-        women=women,
-        men=men,
-        teens=teens,
-        children=children
-    )
-
-
+    category = request.args.get('category')
+    sort = request.args.get('sort')
+    query = Outfit.query
+    if category:
+        query = query.filter(Outfit.category.ilike(f"%{category}%"))
+    if sort == 'asc':
+        query = query.order_by(Outfit.name.asc())
+    elif sort == 'desc':
+        query = query.order_by(Outfit.name.desc())
+    outfits = query.all()
+    return render_template('gallery.html', outfits=outfits)
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
