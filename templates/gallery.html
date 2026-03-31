@@ -2,18 +2,33 @@
 
 {% block content %}
 
-<h1>African Fashion Gallery</h1>
+<h1 class="page-title">African Fashion Gallery</h1>
 
 <div class="top-bar">
+
+    <!-- 🔍 SEARCH -->
     <form method="GET" class="search-box">
         <input type="text" name="search" placeholder="Search outfits..." value="{{ request.args.get('search','') }}">
         <button type="submit">Search</button>
     </form>
+
+    <!-- 📊 STATS -->
+    <div class="stats-inline">
+        <h3>Outfits per Category</h3>
+        {% for category, total in category_counts %}
+            <span>{{ category }}: {{ total }}</span>
+        {% endfor %}
+    </div>
+
 </div>
 
+<!-- 🔤 SORT -->
+<div class="sort-buttons">
+    <a href="?search={{ request.args.get('search','') }}&sort=asc">Sort A-Z</a>
+    <a href="?search={{ request.args.get('search','') }}&sort=desc">Sort Z-A</a>
+</div>
 <div class="gallery-layout">
-
-    <div class="sidebar">
+       <div class="sidebar">
         <button type="button" onclick="showCategory('all')">All</button>
         <button type="button" onclick="showCategory('Women')">Women</button>
         <button type="button" onclick="showCategory('Men')">Men</button>
@@ -33,13 +48,6 @@
 
 </div>
 
-<h3>Outfits per Category</h3>
-<div class="stats">
-    {% for category, total in category_counts %}
-        <div>{{ category }}: {{ total }}</div>
-    {% endfor %}
-</div>
-<a href="/gallery?sort=asc">Sort A-Z</a>
-<a href="/gallery?sort=desc">Sort Z-A</a>
+
 
 {% endblock %}
