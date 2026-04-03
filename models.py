@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import CheckConstraint
+
 db = SQLAlchemy()
 
 class Outfit(db.Model):
@@ -16,3 +17,4 @@ class Outfit(db.Model):
     __table_args__ = (
         CheckConstraint('quantity >= 0', name='check_quantity_positive'),
     )
+    from sqlalchemy import func

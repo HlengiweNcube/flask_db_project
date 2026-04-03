@@ -3,6 +3,16 @@
 {% block content %}
 
 <h1 class="page-title">African Fashion Gallery</h1>
+{% if highlight %}
+    <div class="highlight-box">
+        <h2>{{ highlight }}</h2>
+        <p>Showing outfits with quantity above average)</p>
+    </div>
+{% endif %}
+
+{% if avg_quantity %}
+    <p>Average Stock: {{ avg_quantity }}</p>
+{% endif %}
 
 <div class="top-bar">
 
@@ -30,6 +40,7 @@
 </div>
 
 <!-- 🔤 SORT -->
+ <a href="/high-stock" class="btn">High Stock</a>
 <div class="sort-buttons">
     <a href="?search={{ request.args.get('search','') }}&sort=asc">Sort A-Z</a>
     <a href="?search={{ request.args.get('search','') }}&sort=desc">Sort Z-A</a>

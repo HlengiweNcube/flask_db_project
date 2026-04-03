@@ -9,40 +9,37 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+
 @app.route('/')
 def home():
     return render_template("home.html")
+
 
 @app.route('/gallery')
 def gallery():
     category = request.args.get('category')
     sort = request.args.get('sort')
     search = request.args.get('search')
-
-    #  NEW (BETWEEN example)
     min_qty = request.args.get('min_qty')
     max_qty = request.args.get('max_qty')
 
     query = Outfit.query
 
-    # LIKE (SEARCH)
+    # 🔍 SEARCH
     if search:
         query = query.filter(Outfit.name.ilike(f"%{search}%"))
 
-    #  WHERE (FILTER)
+    # 🎯 FILTER
     if category:
         query = query.filter(Outfit.category.ilike(f"%{category}%"))
 
-    #  BETWEEN (NEW)
+    # 🔢 BETWEEN
     if min_qty and max_qty:
         query = query.filter(
             Outfit.quantity.between(int(min_qty), int(max_qty))
         )
 
-    # Example: show only certain categories
-    # query = query.filter(Outfit.category.in_(["Women", "Men"]))
-
-    #  ORDER BY
+    # 🔤 SORT
     if sort == 'asc':
         query = query.order_by(Outfit.name.asc())
     elif sort == 'desc':
@@ -50,21 +47,13 @@ def gallery():
 
     outfits = query.all()
 
-    #  GROUP BY + COUNT
+    # 📊 GROUP BY
     category_counts = db.session.query(
         Outfit.category,
         func.count(Outfit.id)
     ).group_by(Outfit.category).all()
 
-    #  HAVING (ADVANCED)
-    category_counts_filtered = db.session.query(
-        Outfit.category,
-        func.count(Outfit.id).label("total")
-    ).group_by(Outfit.category)\
-     .having(func.count(Outfit.id) > 0)\
-     .all()
-
-    #  AGGREGATE FUNCTIONS (BIG MARKS)
+    # 📊 AGGREGATES
     stats = db.session.query(
         func.count(Outfit.id),
         func.sum(Outfit.quantity),
@@ -77,9 +66,10 @@ def gallery():
         'gallery.html',
         outfits=outfits,
         category_counts=category_counts,
-        category_counts_filtered=category_counts_filtered,
         stats=stats
     )
+
+
 @app.route('/add', methods=['GET', 'POST'])
 def add():
     if request.method == 'POST':
@@ -88,7 +78,7 @@ def add():
             category=request.form['category'],
             description=request.form['description'],
             image_url=request.form['image_url'],
-           quantity = int(request.form.get('quantity', 0))
+            quantity=int(request.form.get('quantity', 0))
         )
         db.session.add(outfit)
         db.session.commit()
@@ -96,13 +86,6 @@ def add():
 
     return render_template('add_outfit.html')
 
-@app.route('/about')
-def about():
-    return render_template("about.html")
-
-@app.route('/contact')
-def contact():
-    return render_template("contact.html")
 
 @app.route('/delete/<int:id>')
 def delete(id):
@@ -111,27 +94,30 @@ def delete(id):
     db.session.commit()
     return redirect('/gallery')
 
+
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit(id):
-    outfit = Outfit.query.get(id)
+    outfit = Outfit.query.get_or_404(id)
 
     if request.method == 'POST':
         outfit.name = request.form['name']
         outfit.category = request.form['category']
         outfit.description = request.form['description']
         outfit.image_url = request.form['image_url']
-        quantity=int(request.form.get('quantity', 0)) 
+        outfit.quantity = int(request.form.get('quantity', 0))  # ✅ FIXED
 
         db.session.commit()
         return redirect('/gallery')
 
     return render_template('edit_outfit.html', outfit=outfit)
 
+
 @app.route('/dispatch/<int:id>', methods=['POST'])
 def dispatch(id):
     outfit = Outfit.query.get_or_404(id)
 
     amount = int(request.form['amount'])
+
     if amount <= 0:
         return "Invalid quantity"
 
@@ -144,16 +130,38 @@ def dispatch(id):
     return redirect('/gallery')
 
 
-    outfits = Outfit.query.filter_by(category=category).all()
+# 🔥 SUBQUERY ROUTE (VERY IMPORTANT FOR MARKS)
+@app.route('/high-stock')
+def high_stock():
+    avg_quantity = db.session.query(
+        func.avg(Outfit.quantity)
+    ).scalar()
 
-    for outfit in outfits:
-        if outfit.quantity >= amount:
-            outfit.quantity -= amount
-            
+    outfits = Outfit.query.filter(
+        Outfit.quantity > avg_quantity
+    ).all()
 
-    db.session.commit()
+    # ADD THESE 👇
+    category_counts = db.session.query(
+        Outfit.category,
+        func.count(Outfit.id)
+    ).group_by(Outfit.category).all()
 
-    return redirect('/gallery')
+    stats = db.session.query(
+        func.count(Outfit.id),
+        func.sum(Outfit.quantity),
+        func.avg(Outfit.quantity),
+        func.min(Outfit.quantity),
+        func.max(Outfit.quantity)
+    ).first()
 
+    return render_template(
+        'gallery.html',
+        outfits=outfits,
+        highlight="High Stock (Above Average)",
+        avg_quantity=round(avg_quantity, 2),
+        category_counts=category_counts,
+        stats=stats
+    )
 if __name__ == '__main__':
     app.run(debug=True)
