@@ -8,3 +8,5 @@ class Outfit(db.Model):
     category = db.Column(db.String(50))
     description = db.Column(db.Text)
     image_url = db.Column(db.String(200))
+    quantity = db.Column(db.Integer, default=0)
+    

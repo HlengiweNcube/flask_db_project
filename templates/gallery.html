@@ -6,13 +6,13 @@
 
 <div class="top-bar">
 
-    <!-- 🔍 SEARCH -->
+    <!-- 🔍SEARCH -->
     <form method="GET" class="search-box">
         <input type="text" name="search" placeholder="Search outfits..." value="{{ request.args.get('search','') }}">
         <button type="submit">Search</button>
     </form>
 
-    <!-- 📊 STATS -->
+    <!-- STATS -->
     <div class="stats-inline">
         <h3>Outfits per Category</h3>
         {% for category, total in category_counts %}
@@ -21,14 +21,23 @@
     </div>
 
 </div>
+ <div class="stats-box">
+    <p>Total Items: {{ stats[0] }}</p>
+    <p>Total Stock: {{ stats[1] }}</p>
+    <p>Average Stock: {{ stats[2]|round(2) }}</p>
+    <p>Min Stock: {{ stats[3] }}</p>
+    <p>Max Stock: {{ stats[4] }}</p>
+</div>
 
 <!-- 🔤 SORT -->
 <div class="sort-buttons">
     <a href="?search={{ request.args.get('search','') }}&sort=asc">Sort A-Z</a>
     <a href="?search={{ request.args.get('search','') }}&sort=desc">Sort Z-A</a>
 </div>
+
 <div class="gallery-layout">
-       <div class="sidebar">
+
+    <div class="sidebar">
         <button type="button" onclick="showCategory('all')">All</button>
         <button type="button" onclick="showCategory('Women')">Women</button>
         <button type="button" onclick="showCategory('Men')">Men</button>
@@ -42,12 +51,19 @@
                 <img src="{{ url_for('static', filename='images/' + outfit.image_url) }}" alt="{{ outfit.name }}">
                 <h3>{{ outfit.name }}</h3>
                 <p>{{ outfit.category }}</p>
+
+            <a href="/delete/{{ outfit.id }}" class="delete-btn">Delete</a>
+
+            <form method="POST" action="/dispatch/{{ outfit.id }}">
+                <input type="number" name="amount" min="1" placeholder="Qty">
+                <button type="submit">Dispatch</button>
+            </form>
+
+                <p>Stock: {{ outfit.quantity }}</p>
             </div>
         {% endfor %}
     </div>
 
 </div>
-
-
 
 {% endblock %}

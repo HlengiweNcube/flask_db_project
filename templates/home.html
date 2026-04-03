@@ -76,14 +76,15 @@
 </div>
 
 </section>
+<div class="slider">
 
-<!-- Video -->
-<div class="video-container">
-    <iframe
-        src="https://www.youtube.com/embed/1yCqG8s8dFQ"
-        title="African Fashion Video"
-        allowfullscreen>
-    </iframe>
+    <img class="slide active" src="{{ url_for('static', filename='images/lobola.jpg') }}" alt="Lobola negotiations">
+    <img class="slide" src="{{ url_for('static', filename='images/weddings.jpg') }}" alt="African wedding celebration">
+    <img class="slide" src="{{ url_for('static', filename='images/zulu.jpg') }}" alt="Zulu traditional celebration">
+    <img class="slide" src="{{ url_for('static', filename='images/ukuthwasa.jpg') }}" alt="Ukuthwasa spiritual journey">
+    <button class="prev" type="button" onclick="changeSlide(-1)">❮</button>
+    <button class="next" type="button" onclick="changeSlide(1)">❯</button>
+
 </div>
 
 {% endblock %}

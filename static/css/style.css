@@ -629,3 +629,16 @@ main {
     text-decoration: none;
     border-radius: 5px;
 }
+   .delete-btn {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 5px 10px;
+    background: red;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.delete-btn:hover {
+    background: darkred;
+}
