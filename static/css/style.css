@@ -649,3 +649,16 @@ main {
     background: #f5f5f5;
     text-align: center;
 }
+.btn {
+    display: inline-block;
+    padding: 8px 12px;
+    background-color: #333;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    margin: 4px;
+}
+
+.btn:hover {
+    background-color: #555;
+}

@@ -4,9 +4,10 @@
 
 <h1 class="page-title">African Fashion Gallery</h1>
 {% if highlight %}
-    <div class="highlight-box">
+     <div class="highlight-box">
         <h2>{{ highlight }}</h2>
-        <p>Showing outfits with quantity above average)</p>
+        <p>Average Stock: {{ avg_quantity }}</p>
+        <p>Showing only outfits with stock greater than the average.</p>
     </div>
 {% endif %}
 
@@ -49,11 +50,11 @@
 <div class="gallery-layout">
 
     <div class="sidebar">
-        <button type="button" onclick="showCategory('all')">All</button>
-        <button type="button" onclick="showCategory('Women')">Women</button>
-        <button type="button" onclick="showCategory('Men')">Men</button>
-        <button type="button" onclick="showCategory('Teens')">Teens</button>
-        <button type="button" onclick="showCategory('Children')">Children</button>
+        <a href="/gallery" class="btn">All</a>
+        <a href="/gallery?category=Women" class="btn">Women</a>
+        <a href="/gallery?category=Men" class="btn">Men</a>
+        <a href="/gallery?category=Teens" class="btn">Teens</a>
+        <a href="/gallery?category=Children" class="btn">Children</a>
     </div>
 
     <div id="gallery" class="gallery-container">
