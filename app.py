@@ -57,10 +57,12 @@ def gallery():
 
     # JOIN
     results = db.session.query(
-        Outfit.name,
-        Category.name
-    ).join(Category, Outfit.category == Category.name).all()
-
+    Outfit.name,
+    Category.name
+  ).join(Category, Outfit.category == Category.name)\
+ .filter(Outfit.quantity > 0)\
+ .all()
+    
     return render_template(
         'gallery.html',
         outfits=outfits,
