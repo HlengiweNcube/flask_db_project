@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect
 from models import db, Outfit, Category
-from sqlalchemy import func, text
+from sqlalchemy import func
 
 app = Flask(__name__)
 
@@ -9,14 +9,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
-with app.app_context():
-    db.create_all()
-    # Add price column if it doesn't exist
-    try:
-        db.session.execute(text("ALTER TABLE outfits ADD COLUMN price FLOAT DEFAULT 0.0;"))
-        db.session.commit()
-    except Exception as e:
-        print(f"Column might already exist: {e}")
 
 @app.route('/')
 def home():
@@ -88,15 +80,37 @@ def gallery():
 @app.route('/add', methods=['GET', 'POST'])
 def add():
     if request.method == 'POST':
-        outfit = Outfit(
-            name=request.form['name'],
-            category=request.form['category'],
-            description=request.form['description'],
-            image_url=request.form['image_url'],
-            quantity=int(request.form.get('quantity', 0)),
-            price=float(request.form.get('price', 0))
-        )
-        db.session.add(outfit)
+
+        # ✅ GET DATA FROM FORM
+        name = request.form['name']
+        category = request.form['category']
+        description = request.form['description']
+        image_url = request.form['image_url']
+        quantity = int(request.form.get('quantity', 0))
+        price = float(request.form.get('price', 0.0))
+
+        # 🔍 CHECK IF EXISTS
+        existing_outfit = Outfit.query.filter_by(
+            name=name,
+            category=category
+        ).first()
+
+        if existing_outfit:
+            # ✅ UPDATE
+            existing_outfit.quantity += quantity
+            existing_outfit.price = price
+        else:
+            # ✅ CREATE NEW
+            new_outfit = Outfit(
+                name=name,
+                category=category,
+                description=description,
+                image_url=image_url,
+                quantity=quantity,
+                price=price
+            )
+            db.session.add(new_outfit)
+
         db.session.commit()
         return redirect('/gallery')
 
@@ -121,26 +135,31 @@ def edit(id):
         outfit.description = request.form['description']
         outfit.image_url = request.form['image_url']
         outfit.quantity = int(request.form.get('quantity', 0))
-        outfit.price = float(request.form.get('price', 0))
 
         db.session.commit()
         return redirect('/gallery')
 
     return render_template('edit_outfit.html', outfit=outfit)
-
-
 @app.route('/dispatch/<int:id>', methods=['POST'])
 def dispatch(id):
     outfit = Outfit.query.get_or_404(id)
 
-    amount = int(request.form['amount'])
+    amount = request.form.get('amount')
 
+    # ✅ HANDLE EMPTY INPUT
+    if not amount:
+        return "Please enter a quantity"
+
+    amount = int(amount)
+
+    # ✅ VALIDATION
     if amount <= 0:
         return "Invalid quantity"
 
-    if outfit.quantity - amount < 0:
-        return "Cannot go below zero!"
+    if outfit.quantity < amount:
+        return "Not enough stock!"
 
+    # ✅ UPDATE
     outfit.quantity -= amount
     db.session.commit()
 
