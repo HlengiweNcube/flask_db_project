@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect
-from models import db, Outfit
+from models import db, Outfit, Category
 from sqlalchemy import func
 
 app = Flask(__name__)
@@ -25,21 +25,21 @@ def gallery():
 
     query = Outfit.query
 
-    # 🔍 SEARCH
+    # SEARCH (LIKE)
     if search:
         query = query.filter(Outfit.name.ilike(f"%{search}%"))
 
-    # 🎯 FILTER
+    #  FILTER (WHERE)
     if category:
         query = query.filter(Outfit.category.ilike(f"%{category}%"))
 
-    # 🔢 BETWEEN
+    #  BETWEEN
     if min_qty and max_qty:
         query = query.filter(
             Outfit.quantity.between(int(min_qty), int(max_qty))
         )
 
-    # 🔤 SORT
+    #  SORT (ORDER BY)
     if sort == 'asc':
         query = query.order_by(Outfit.name.asc())
     elif sort == 'desc':
@@ -47,13 +47,13 @@ def gallery():
 
     outfits = query.all()
 
-    # 📊 GROUP BY
+    # GROUP BY
     category_counts = db.session.query(
         Outfit.category,
         func.count(Outfit.id)
     ).group_by(Outfit.category).all()
 
-    # 📊 AGGREGATES
+    # AGGREGATES
     stats = db.session.query(
         func.count(Outfit.id),
         func.sum(Outfit.quantity),
@@ -104,7 +104,7 @@ def edit(id):
         outfit.category = request.form['category']
         outfit.description = request.form['description']
         outfit.image_url = request.form['image_url']
-        outfit.quantity = int(request.form.get('quantity', 0))  # ✅ FIXED
+        outfit.quantity = int(request.form.get('quantity', 0))
 
         db.session.commit()
         return redirect('/gallery')
@@ -121,47 +121,76 @@ def dispatch(id):
     if amount <= 0:
         return "Invalid quantity"
 
-    if outfit.quantity >= amount:
-        outfit.quantity -= amount
-        db.session.commit()
-    else:
-        return "Not enough stock!"
+    if outfit.quantity - amount < 0:
+        return "Cannot go below zero!"
+
+    outfit.quantity -= amount
+    db.session.commit()
 
     return redirect('/gallery')
 
 
-# 🔥 SUBQUERY ROUTE (VERY IMPORTANT FOR MARKS)
+#  SUBQUERY (VERY IMPORTANT FOR MARKS)
 @app.route('/high-stock')
 def high_stock():
     avg_quantity = db.session.query(
         func.avg(Outfit.quantity)
     ).scalar()
 
+    avg_quantity = avg_quantity or 0
+    avg_quantity = round(avg_quantity, 2)
+
     outfits = Outfit.query.filter(
         Outfit.quantity > avg_quantity
     ).all()
 
-    # ADD THESE 👇
+    # GROUP BY (only high stock)
     category_counts = db.session.query(
         Outfit.category,
         func.count(Outfit.id)
+    ).filter(
+        Outfit.quantity > avg_quantity
     ).group_by(Outfit.category).all()
 
+    # AGGREGATES (only high stock)
     stats = db.session.query(
         func.count(Outfit.id),
         func.sum(Outfit.quantity),
         func.avg(Outfit.quantity),
         func.min(Outfit.quantity),
         func.max(Outfit.quantity)
+    ).filter(
+        Outfit.quantity > avg_quantity
     ).first()
+
+    # HANDLE NULLS
+    stats = (
+        stats[0] or 0,
+        stats[1] or 0,
+        round(stats[2], 2) if stats[2] else 0,
+        stats[3] or 0,
+        stats[4] or 0
+    )
 
     return render_template(
         'gallery.html',
         outfits=outfits,
         highlight="High Stock (Above Average)",
-        avg_quantity=round(avg_quantity, 2),
+        avg_quantity=avg_quantity,
         category_counts=category_counts,
         stats=stats
     )
+
+# JOIN DEMO
+@app.route('/join-demo')
+def join_demo():
+    results = db.session.query(
+        Outfit.name,
+        Category.name
+    ).join(Category, Outfit.category == Category.name).all()
+
+    return render_template('join.html', results=results)
+
+
 if __name__ == '__main__':
     app.run(debug=True)

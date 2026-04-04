@@ -17,7 +17,7 @@
 
 <div class="top-bar">
 
-    <!-- 🔍SEARCH -->
+    <!-- SEARCH -->
     <form method="GET" class="search-box">
         <input type="text" name="search" placeholder="Search outfits..." value="{{ request.args.get('search','') }}">
         <button type="submit">Search</button>
@@ -35,7 +35,7 @@
  <div class="stats-box">
     <p>Total Items: {{ stats[0] }}</p>
     <p>Total Stock: {{ stats[1] }}</p>
-    <p>Average Stock: {{ stats[2]|round(2) }}</p>
+    <p>Average Stock: {{ stats[2] }}</p>
     <p>Min Stock: {{ stats[3] }}</p>
     <p>Max Stock: {{ stats[4] }}</p>
 </div>
@@ -77,5 +77,14 @@
     </div>
 
 </div>
+<h2>Outfits with Categories (JOIN)</h2>
+
+<ul>
+    {% for outfit_name, category_name in results %}
+        <li>{{ outfit_name }} - {{ category_name }}</li>
+    {% endfor %}
+</ul>
+
+<a href="/gallery">Back to Gallery</a>
 
 {% endblock %}
