@@ -39,6 +39,8 @@
     <p>Max Stock: {{ stats[4] }}</p>
 </div>
 
+
+
 <!-- 🔤 SORT -->
 <div class="sort-buttons">
     <a href="{{ url_for('gallery', sort='asc', search=request.args.get('search')) }}">
@@ -97,5 +99,9 @@
 
     </div>
 </div>
+<h3>Join Results</h3>
+{% for outfit_name, category_name in results %}
+    <p>{{ outfit_name }} - {{ category_name }}</p>
+{% endfor %}
 
 {% endblock %}

@@ -3,7 +3,7 @@
 {% block content %}
 <h1>Edit Outfit</h1>
 
-<form method="POST">
+ <form onsubmit="submitFormJSON(event)">
     <input type="text" name="name" value="{{ outfit.name }}" required><br><br>
     <input type="text" name="category" value="{{ outfit.category }}"><br><br>
     <textarea name="description">{{ outfit.description }}</textarea><br><br>

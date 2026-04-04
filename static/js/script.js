@@ -80,3 +80,29 @@ function changeSlide(direction) {
 setInterval(() => {
     changeSlide(1);
 }, 3000);
+function submitFormJSON(event) {
+    event.preventDefault();
+
+    const data = {
+        name: document.querySelector('[name="name"]').value,
+        category: document.querySelector('[name="category"]').value,
+        description: document.querySelector('[name="description"]').value,
+        image_url: document.querySelector('[name="image_url"]').value,
+        quantity: parseInt(document.querySelector('[name="quantity"]').value),
+        price: parseFloat(document.querySelector('[name="price"]').value)
+    };
+
+    fetch('/api/add-outfit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(response => {
+        alert(response.message || response.error);
+        window.location.href = "/gallery";
+    })
+    .catch(error => console.error(error));
+}
