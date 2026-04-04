@@ -55,12 +55,12 @@
 <div class="gallery-layout">
     <!-- 🎯 CATEGORY FILTER (JS) -->
     <div class="sidebar">
-        <button onclick="showCategory('high-stock')">High Stock</button>
-        <button onclick="showCategory('all')">All</button>
-        <button onclick="showCategory('Women')">Women</button>
-        <button onclick="showCategory('Men')">Men</button>
-        <button onclick="showCategory('Teens')">Teens</button>
-        <button onclick="showCategory('Children')">Children</button>
+        <a href="/high-stock" class="btn-black">High Stock</a>
+        <a href="{{ url_for('gallery') }}" class="btn">All</a>
+        <a href="{{ url_for('gallery', category='Women') }}" class="btn">Women</a>
+        <a href="{{ url_for('gallery', category='Men') }}" class="btn">Men</a>
+        <a href="{{ url_for('gallery', category='Teens') }}" class="btn">Teens</a>
+        <a href="{{ url_for('gallery', category='Children') }}" class="btn">Children</a>
     </div>
 
     <!-- 🧥 OUTFITS -->

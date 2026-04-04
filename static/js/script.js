@@ -55,4 +55,5 @@ function showCategory(category) {
         }
     });
 }
+<a href="/high-stock" class="btn-black">High Stock</a>
 

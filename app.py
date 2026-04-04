@@ -31,7 +31,7 @@ def gallery():
 
     #  FILTER (WHERE)
     if category:
-        query = query.filter(Outfit.category.ilike(f"%{category}%"))
+        query = query.filter(Outfit.category.ilike(f"{category}%"))
 
     #  BETWEEN
     if min_qty and max_qty:
