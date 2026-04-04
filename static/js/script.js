@@ -55,5 +55,28 @@ function showCategory(category) {
         }
     });
 }
-<a href="/high-stock" class="btn-black">High Stock</a>
 
+function showCategory(category) {
+    const cards = document.querySelectorAll('.card');
+
+    cards.forEach(card => {
+        const cardCategory = card.getAttribute('data-category').trim().toLowerCase();
+
+        if (category === 'all') {
+            card.style.display = 'block';
+        } else if (cardCategory === category.toLowerCase()) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function changeSlide(direction) {
+    showSlide(currentSlide + direction);
+}
+
+// ✅ AUTO SLIDE 
+setInterval(() => {
+    changeSlide(1);
+}, 3000);
