@@ -55,13 +55,13 @@ def gallery():
 
     # AGGREGATES
     stats = db.session.query(
-        func.count(Outfit.id),
-        func.sum(Outfit.quantity),
-        func.avg(Outfit.quantity),
-        func.min(Outfit.quantity),
-        func.max(Outfit.quantity)
-    ).first()
-
+    func.count(Outfit.id),
+    func.sum(Outfit.quantity),
+    func.avg(Outfit.quantity),
+    func.min(Outfit.quantity),
+    func.max(Outfit.quantity)
+).filter(Outfit.quantity > 0).first()
+    
     # JOIN for demo
     results = db.session.query(
         Outfit.name,
