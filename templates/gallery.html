@@ -4,20 +4,14 @@
 
 <h1 class="page-title">African Fashion Gallery</h1>
 {% if highlight %}
-     <div class="highlight-box">
+    <div class="highlight-box">
         <h2>{{ highlight }}</h2>
-        <p>Average Stock: {{ avg_quantity }}</p>
-        <p>Showing only outfits with stock greater than the average.</p>
+        <p>Showing outfits with quantity above average (Subquery)</p>
     </div>
 {% endif %}
-
-{% if avg_quantity %}
-    <p>Average Stock: {{ avg_quantity }}</p>
-{% endif %}
-
 <div class="top-bar">
 
-    <!-- SEARCH -->
+    <!-- 🔍SEARCH -->
     <form method="GET" class="search-box">
         <input type="text" name="search" placeholder="Search outfits..." value="{{ request.args.get('search','') }}">
         <button type="submit">Search</button>
@@ -35,13 +29,12 @@
  <div class="stats-box">
     <p>Total Items: {{ stats[0] }}</p>
     <p>Total Stock: {{ stats[1] }}</p>
-    <p>Average Stock: {{ stats[2] }}</p>
+    <p>Average Stock: {{ stats[2]|round(2) }}</p>
     <p>Min Stock: {{ stats[3] }}</p>
     <p>Max Stock: {{ stats[4] }}</p>
 </div>
 
 <!-- 🔤 SORT -->
- <a href="/high-stock" class="btn">High Stock</a>
 <div class="sort-buttons">
     <a href="?search={{ request.args.get('search','') }}&sort=asc">Sort A-Z</a>
     <a href="?search={{ request.args.get('search','') }}&sort=desc">Sort Z-A</a>
@@ -50,16 +43,15 @@
 <div class="gallery-layout">
 
     <div class="sidebar">
-        <button onclick="showCategory('all')" class="btn">All</button>
-        <button onclick="showCategory('Women')" class="btn">Women</button>
-        <button onclick="showCategory('Men')" class="btn">Men</button>
-        <button onclick="showCategory('Teens')" class="btn">Teens</button>
-        <button onclick="showCategory('Children')" class="btn">Children</button>
+        <button type="button" onclick="showCategory('all')">All</button>
+        <button type="button" onclick="showCategory('Women')">Women</button>
+        <button type="button" onclick="showCategory('Men')">Men</button>
+        <button type="button" onclick="showCategory('Teens')">Teens</button>
+        <button type="button" onclick="showCategory('Children')">Children</button>
     </div>
 
     <div id="gallery" class="gallery-container">
         {% for outfit in outfits %}
-        
             <div class="card" data-category="{{ outfit.category }}">
                 <img src="{{ url_for('static', filename='images/' + outfit.image_url) }}" alt="{{ outfit.name }}">
                 <h3>{{ outfit.name }}</h3>
@@ -76,25 +68,5 @@
             </div>
         {% endfor %}
     </div>
-
 </div>
-<h2>Outfits with Categories (JOIN)</h2>
-
-<ul>
-    {% for outfit_name, category_name in results %}
-        <li>{{ outfit_name }} - {{ category_name }}</li>
-    {% endfor %}
-</ul>
-
-<script>
-function showCategory(category) {
-    if (category === 'all') {
-        window.location.href = "/gallery";
-    } else {
-        window.location.href = "/gallery?category=" + category;
-    }
-}
-</script>
-<a href="/gallery">Back to Gallery</a>
-
 {% endblock %}

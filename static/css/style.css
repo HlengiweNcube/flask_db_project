@@ -662,3 +662,42 @@ main {
 .btn:hover {
     background-color: #555;
 }
+
+.form-container {
+    max-width: 400px;
+    margin: auto;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column; 
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* BUTTON STYLE */
+.btn-black {
+    display: block;    
+    width: 100%;
+    padding: 10px;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-black:hover {
+    background-color: #333;
+}

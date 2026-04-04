@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect
 from models import db, Outfit, Category
-from sqlalchemy import func
+from sqlalchemy import func, text
 
 app = Flask(__name__)
 
@@ -9,6 +9,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+with app.app_context():
+    db.create_all()
+    # Add price column if it doesn't exist
+    try:
+        db.session.execute(text("ALTER TABLE outfits ADD COLUMN price FLOAT DEFAULT 0.0;"))
+        db.session.commit()
+    except Exception as e:
+        print(f"Column might already exist: {e}")
 
 @app.route('/')
 def home():
@@ -85,7 +93,8 @@ def add():
             category=request.form['category'],
             description=request.form['description'],
             image_url=request.form['image_url'],
-            quantity=int(request.form.get('quantity', 0))
+            quantity=int(request.form.get('quantity', 0)),
+            price=float(request.form.get('price', 0))
         )
         db.session.add(outfit)
         db.session.commit()
@@ -112,6 +121,7 @@ def edit(id):
         outfit.description = request.form['description']
         outfit.image_url = request.form['image_url']
         outfit.quantity = int(request.form.get('quantity', 0))
+        outfit.price = float(request.form.get('price', 0))
 
         db.session.commit()
         return redirect('/gallery')
