@@ -2,9 +2,19 @@ from flask import Flask, jsonify, render_template, request, redirect
 from models import db, Outfit, Category
 from sqlalchemy import func, text
 
+import os
+
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Amanda%40123@localhost:5432/african_fashion'
+uri = os.environ.get("DATABASE_URL")
+
+if not uri:
+    uri = "postgresql://postgres:Amanda%40123@localhost:5432/african_fashion"
+
+if uri.startswith("postgres://"):
+    uri = uri.replace("postgres://", "postgresql://", 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
