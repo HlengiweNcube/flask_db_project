@@ -51,7 +51,8 @@ def gallery():
     category_counts = db.session.query(
         Outfit.category,
         func.count(Outfit.id)
-    ).group_by(Outfit.category).all()
+    ).filter(Outfit.quantity > 0)\
+ .group_by(Outfit.category).all()
 
     # AGGREGATES
     stats = db.session.query(

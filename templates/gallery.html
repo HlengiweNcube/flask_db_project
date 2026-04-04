@@ -16,9 +16,7 @@
 
     <!-- 🔍 SEARCH -->
     <form method="GET" class="search-box">
-        <input type="text" name="search"
-               placeholder="Search outfits..."
-               value="{{ request.args.get('search','') }}">
+        <input type="text" name="search" placeholder="Search outfits..." value="{{ request.args.get('search','') }}">
         <button type="submit">Search</button>
     </form>
 
@@ -26,7 +24,7 @@
     <div class="stats-inline">
         <h3>Outfits per Category</h3>
         {% for category, total in category_counts %}
-            <span>{{ category }}: {{ total }}</span>
+        <span>{{ category }}: {{ total }}</span>
         {% endfor %}
     </div>
 
@@ -55,7 +53,7 @@
 <div class="gallery-layout">
     <!-- 🎯 CATEGORY FILTER (JS) -->
     <div class="sidebar">
-        <a href="/high-stock" class="btn-black">High Stock</a>
+        <a href="{{ url_for('gallery') }}" class="btn">High Stock</a>
         <a href="{{ url_for('gallery') }}" class="btn">All</a>
         <a href="{{ url_for('gallery', category='Women') }}" class="btn">Women</a>
         <a href="{{ url_for('gallery', category='Men') }}" class="btn">Men</a>
@@ -67,36 +65,34 @@
     <div id="gallery" class="gallery-container">
 
         {% if outfits %}
-            {% for outfit in outfits %}
-            <div class="card" data-category="{{ outfit.category }}">
+        {% for outfit in outfits %}
+        <div class="card" data-category="{{ outfit.category }}">
 
-                <img src="{{ url_for('static', filename='images/' + outfit.image_url) }}"
-                     alt="{{ outfit.name }}">
+            <img src="{{ url_for('static', filename='images/' + outfit.image_url) }}" alt="{{ outfit.name }}">
 
-                <h3>{{ outfit.name }}</h3>
-                <p><strong>Category:</strong> {{ outfit.category }}</p>
+            <h3>{{ outfit.name }}</h3>
+            <p><strong>Category:</strong> {{ outfit.category }}</p>
 
-                <!-- 💰 PRICE -->
-                <p><strong>Price:</strong> €{{ outfit.price }}</p>
+            <!-- 💰 PRICE -->
+            <p><strong>Price:</strong> €{{ outfit.price }}</p>
 
-                <!-- 📦 STOCK -->
-                <p><strong>Stock:</strong> {{ outfit.quantity }}</p>
+            <!-- 📦 STOCK -->
+            <p><strong>Stock:</strong> {{ outfit.quantity }}</p>
 
-                <!-- ❌ DELETE -->
-                <form method="POST" action="/dispatch/{{ outfit.id }}" class="dispatch-form">
+            <!-- ❌ DELETE -->
+            <form method="POST" action="/dispatch/{{ outfit.id }}" class="dispatch-form">
                 <input type="number" name="amount" min="1" placeholder="Qty">
                 <button type="submit">Dispatch</button>
-                </form>
+            </form>
 
-     <a href="/delete/{{ outfit.id }}" 
-   class="delete-btn delete-space"
-   onclick="return confirm('Are you sure you want to delete this outfit?')">
-   Delete</a>
+            <a href="/delete/{{ outfit.id }}" class="delete-btn delete-space"
+                onclick="return confirm('Are you sure you want to delete this outfit?')">
+                Delete</a>
 
-            </div>
-            {% endfor %}
+        </div>
+        {% endfor %}
         {% else %}
-            <p>No outfits found.</p>
+        <p>No outfits found.</p>
         {% endif %}
 
     </div>
