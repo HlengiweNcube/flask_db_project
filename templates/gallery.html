@@ -3,21 +3,26 @@
 {% block content %}
 
 <h1 class="page-title">African Fashion Gallery</h1>
+
+<!-- 🔥 HIGHLIGHT (SUBQUERY) -->
 {% if highlight %}
-    <div class="highlight-box">
-        <h2>{{ highlight }}</h2>
-        <p>Showing outfits with quantity above average (Subquery)</p>
-    </div>
+<div class="highlight-box">
+    <h2>{{ highlight }}</h2>
+    <p>Showing outfits with quantity above average</p>
+</div>
 {% endif %}
+
 <div class="top-bar">
 
-    <!-- 🔍SEARCH -->
+    <!-- 🔍 SEARCH -->
     <form method="GET" class="search-box">
-        <input type="text" name="search" placeholder="Search outfits..." value="{{ request.args.get('search','') }}">
+        <input type="text" name="search"
+               placeholder="Search outfits..."
+               value="{{ request.args.get('search','') }}">
         <button type="submit">Search</button>
     </form>
 
-    <!-- STATS -->
+    <!-- 📊 CATEGORY COUNTS (LIKE A VIEW) -->
     <div class="stats-inline">
         <h3>Outfits per Category</h3>
         {% for category, total in category_counts %}
@@ -26,47 +31,72 @@
     </div>
 
 </div>
- <div class="stats-box">
+
+<!-- 📊 GLOBAL STATS -->
+<div class="stats-box">
     <p>Total Items: {{ stats[0] }}</p>
     <p>Total Stock: {{ stats[1] }}</p>
-    <p>Average Stock: {{ stats[2]|round(2) }}</p>
+    <p>Average Stock: {{ stats[2] }}</p>
     <p>Min Stock: {{ stats[3] }}</p>
     <p>Max Stock: {{ stats[4] }}</p>
 </div>
 
 <!-- 🔤 SORT -->
 <div class="sort-buttons">
-    <a href="?search={{ request.args.get('search','') }}&sort=asc">Sort A-Z</a>
-    <a href="?search={{ request.args.get('search','') }}&sort=desc">Sort Z-A</a>
-</div>
+    <a href="{{ url_for('gallery', sort='asc', search=request.args.get('search')) }}">
+        Sort A-Z
+    </a>
+
+    <a href="{{ url_for('gallery', sort='desc', search=request.args.get('search')) }}">
+        Sort Z-A
+    </a>
+</div
 
 <div class="gallery-layout">
-
+    <!-- 🎯 CATEGORY FILTER (JS) -->
     <div class="sidebar">
-        <button type="button" onclick="showCategory('all')">All</button>
-        <button type="button" onclick="showCategory('Women')">Women</button>
-        <button type="button" onclick="showCategory('Men')">Men</button>
-        <button type="button" onclick="showCategory('Teens')">Teens</button>
-        <button type="button" onclick="showCategory('Children')">Children</button>
+        <button onclick="showCategory('high-stock')">High Stock</button>
+        <button onclick="showCategory('all')">All</button>
+        <button onclick="showCategory('Women')">Women</button>
+        <button onclick="showCategory('Men')">Men</button>
+        <button onclick="showCategory('Teens')">Teens</button>
+        <button onclick="showCategory('Children')">Children</button>
     </div>
 
+    <!-- 🧥 OUTFITS -->
     <div id="gallery" class="gallery-container">
-        {% for outfit in outfits %}
+
+        {% if outfits %}
+            {% for outfit in outfits %}
             <div class="card" data-category="{{ outfit.category }}">
-                <img src="{{ url_for('static', filename='images/' + outfit.image_url) }}" alt="{{ outfit.name }}">
+
+                <img src="{{ url_for('static', filename='images/' + outfit.image_url) }}"
+                     alt="{{ outfit.name }}">
+
                 <h3>{{ outfit.name }}</h3>
-                <p>{{ outfit.category }}</p>
+                <p><strong>Category:</strong> {{ outfit.category }}</p>
 
-            <a href="/delete/{{ outfit.id }}" class="delete-btn">Delete</a>
+                <!-- 💰 PRICE -->
+                <p><strong>Price:</strong> €{{ outfit.price }}</p>
 
-            <form method="POST" action="/dispatch/{{ outfit.id }}">
-                <input type="number" name="amount" min="1" placeholder="Qty">
-                <button type="submit">Dispatch</button>
-            </form>
+                <!-- 📦 STOCK -->
+                <p><strong>Stock:</strong> {{ outfit.quantity }}</p>
 
-                <p>Stock: {{ outfit.quantity }}</p>
+                <!-- ❌ DELETE -->
+                <a href="/delete/{{ outfit.id }}" class="delete-btn">Delete</a>
+
+                <!-- 🚚 DISPATCH -->
+                <form method="POST" action="/dispatch/{{ outfit.id }}">
+                    <input type="number" name="amount" min="1" placeholder="Qty">
+                    <button type="submit">Dispatch</button>
+                </form>
+
             </div>
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            <p>No outfits found.</p>
+        {% endif %}
+
     </div>
 </div>
 {% endblock %}

@@ -40,3 +40,19 @@ function changeSlide(direction) {
     currentSlide += direction;
     showSlide(currentSlide);
 }
+function showCategory(category) {
+    let cards = document.querySelectorAll('.card');
+
+    cards.forEach(card => {
+        if (category === 'all') {
+            card.style.display = 'block';
+        } else {
+            if (card.getAttribute('data-category') === category) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        }
+    });
+}
+
