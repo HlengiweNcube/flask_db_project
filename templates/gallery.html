@@ -83,13 +83,15 @@
                 <p><strong>Stock:</strong> {{ outfit.quantity }}</p>
 
                 <!-- ❌ DELETE -->
-                <a href="/delete/{{ outfit.id }}" class="delete-btn">Delete</a>
-
-                <!-- 🚚 DISPATCH -->
-                <form method="POST" action="/dispatch/{{ outfit.id }}">
-                    <input type="number" name="amount" min="1" placeholder="Qty">
-                    <button type="submit">Dispatch</button>
+                <form method="POST" action="/dispatch/{{ outfit.id }}" class="dispatch-form">
+                <input type="number" name="amount" min="1" placeholder="Qty">
+                <button type="submit">Dispatch</button>
                 </form>
+
+     <a href="/delete/{{ outfit.id }}" 
+   class="delete-btn delete-space"
+   onclick="return confirm('Are you sure you want to delete this outfit?')">
+   Delete</a>
 
             </div>
             {% endfor %}

@@ -23,7 +23,7 @@ def gallery():
     min_qty = request.args.get('min_qty')
     max_qty = request.args.get('max_qty')
 
-    query = Outfit.query
+    query = Outfit.query.filter(Outfit.quantity > 0)
 
     # SEARCH (LIKE)
     if search:
