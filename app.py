@@ -62,11 +62,18 @@ def gallery():
         func.max(Outfit.quantity)
     ).first()
 
+    # JOIN for demo
+    results = db.session.query(
+        Outfit.name,
+        Category.name
+    ).join(Category, Outfit.category == Category.name).all()
+
     return render_template(
         'gallery.html',
         outfits=outfits,
         category_counts=category_counts,
-        stats=stats
+        stats=stats,
+        results=results
     )
 
 
@@ -172,25 +179,23 @@ def high_stock():
         stats[4] or 0
     )
 
+    # JOIN for demo
+    results = db.session.query(
+        Outfit.name,
+        Category.name
+    ).join(Category, Outfit.category == Category.name).filter(
+        Outfit.quantity > avg_quantity
+    ).all()
+
     return render_template(
         'gallery.html',
         outfits=outfits,
         highlight="High Stock (Above Average)",
         avg_quantity=avg_quantity,
         category_counts=category_counts,
-        stats=stats
+        stats=stats,
+        results=results
     )
-
-# JOIN DEMO
-@app.route('/join-demo')
-def join_demo():
-    results = db.session.query(
-        Outfit.name,
-        Category.name
-    ).join(Category, Outfit.category == Category.name).all()
-
-    return render_template('join.html', results=results)
-
 
 if __name__ == '__main__':
     app.run(debug=True)
