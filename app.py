@@ -134,21 +134,67 @@ def dispatch(id):
 
     return redirect('/gallery')
 
-
 @app.route('/high-stock')
 def high_stock():
     avg = db.session.query(func.avg(Outfit.quantity)).scalar() or 0
 
-    outfits = Outfit.query.filter(Outfit.quantity > avg).all()
+    # ✅ FILTER HIGH STOCK + ONLY VALID ITEMS
+    outfits = Outfit.query.filter(
+        Outfit.quantity > avg,
+        Outfit.quantity > 0
+    ).all()
+
+    # ✅ GROUP BY
+    category_counts = db.session.query(
+        Outfit.category,
+        func.count(Outfit.id)
+    ).filter(
+        Outfit.quantity > avg
+    ).group_by(Outfit.category).all()
+
+    # ✅ AGGREGATES
+    stats = db.session.query(
+        func.count(Outfit.id),
+        func.sum(Outfit.quantity),
+        func.avg(Outfit.quantity),
+        func.min(Outfit.quantity),
+        func.max(Outfit.quantity)
+    ).filter(
+        Outfit.quantity > avg
+    ).first()
+
+    # ✅ HANDLE NULLS
+    stats = (
+        stats[0] or 0,
+        stats[1] or 0,
+        round(stats[2], 2) if stats[2] else 0,
+        stats[3] or 0,
+        stats[4] or 0
+    )
+
+    # ✅ JOIN
+    results = db.session.query(
+        Outfit.name,
+        Category.name
+    ).join(Category, Outfit.category == Category.name)\
+     .filter(Outfit.quantity > avg)\
+     .all()
+
+    # ✅ VIEW
+    category_view = db.session.execute(
+        text("SELECT * FROM category_summary")
+    ).fetchall()
 
     return render_template(
         'gallery.html',
         outfits=outfits,
-        highlight="High Stock",
-        avg_quantity=round(avg, 2)
+        highlight="High Stock (Above Average)",
+        avg_quantity=round(avg, 2),
+        category_counts=category_counts,
+        stats=stats,
+        results=results,
+        category_view=category_view
     )
-
-
 @app.route('/about')
 def about():
     return render_template("about.html")
