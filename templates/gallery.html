@@ -34,7 +34,7 @@
 <div class="stats-box">
     <p>Total Items: {{ stats[0] }}</p>
     <p>Total Stock: {{ stats[1] }}</p>
-    <p>Average Stock: {{ stats[2] }}</p>
+    <p>Average Stock: {{ stats[2]|round(2) }}</p>
     <p>Min Stock: {{ stats[3] }}</p>
     <p>Max Stock: {{ stats[4] }}</p>
 </div>
