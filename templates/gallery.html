@@ -50,15 +50,16 @@
 <div class="gallery-layout">
 
     <div class="sidebar">
-        <a href="/gallery" class="btn">All</a>
-        <a href="/gallery?category=Women" class="btn">Women</a>
-        <a href="/gallery?category=Men" class="btn">Men</a>
-        <a href="/gallery?category=Teens" class="btn">Teens</a>
-        <a href="/gallery?category=Children" class="btn">Children</a>
+        <button onclick="showCategory('all')" class="btn">All</button>
+        <button onclick="showCategory('Women')" class="btn">Women</button>
+        <button onclick="showCategory('Men')" class="btn">Men</button>
+        <button onclick="showCategory('Teens')" class="btn">Teens</button>
+        <button onclick="showCategory('Children')" class="btn">Children</button>
     </div>
 
     <div id="gallery" class="gallery-container">
         {% for outfit in outfits %}
+        
             <div class="card" data-category="{{ outfit.category }}">
                 <img src="{{ url_for('static', filename='images/' + outfit.image_url) }}" alt="{{ outfit.name }}">
                 <h3>{{ outfit.name }}</h3>
@@ -85,6 +86,15 @@
     {% endfor %}
 </ul>
 
+<script>
+function showCategory(category) {
+    if (category === 'all') {
+        window.location.href = "/gallery";
+    } else {
+        window.location.href = "/gallery?category=" + category;
+    }
+}
+</script>
 <a href="/gallery">Back to Gallery</a>
 
 {% endblock %}
