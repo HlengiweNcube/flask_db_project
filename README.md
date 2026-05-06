@@ -42,6 +42,7 @@ This project demonstrates:
 * **Render** was used for deployment to make the app accessible online
 
 ---
+A PostgreSQL database was created on Render and connected using an environment variable (DATABASE_URL).
 
 ## 🗄️ Database Design
 
