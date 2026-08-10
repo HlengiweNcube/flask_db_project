@@ -11,7 +11,7 @@ class Category(db.Model):
     name = db.Column(db.String(50), nullable=False, unique=True)
 
     # Relationship: one category → many outfits
-    outfits = db.relationship('Outfit', backref='category', lazy=True)
+    outfits = db.relationship('Outfit', back_populates='category', lazy=True)
 
     def __repr__(self):
         return f"<Category {self.name}>"
@@ -32,8 +32,12 @@ class Outfit(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=0)
     price = db.Column(db.Float, nullable=False, default=0.0)
 
-    # 🔥 THIS is the important part
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
+    category = db.relationship('Category', back_populates='outfits')
+
+    @property
+    def category_name(self):
+        return self.category.name if self.category else 'Uncategorized'
 
     def __repr__(self):
         return f"<Outfit {self.name}>"
