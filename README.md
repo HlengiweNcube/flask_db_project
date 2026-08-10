@@ -1,7 +1,7 @@
 # African Fashion Web Application
 
-An interactive web-based application for managing African traditional clothing inventory.
-Built using Flask, PostgreSQL, HTML, CSS, JavaScript, and JSON.
+An interactive inventory application for African fashion outfits.
+Built with Flask, SQLAlchemy, PostgreSQL, HTML, CSS, and JavaScript.
 
 ---
 
@@ -23,141 +23,179 @@ Hlengiwe Ncube
 
 ## 🎯 Purpose
 
-This project demonstrates:
+This project documents and demonstrates:
 
-* Integration of Flask with PostgreSQL
-* Implementation of full CRUD functionality
-* Use of relational database design
-* Frontend interaction using JavaScript and JSON
-* Deployment using Render
-
----
-
-## 🧠 Design Decisions
-
-* **Flask** was chosen for simplicity and flexibility
-* **PostgreSQL** was used to demonstrate relational database concepts
-* **SQLAlchemy ORM** simplifies database interaction
-* **JavaScript + JSON** enables dynamic form submission without page reload
-* **Render** was used for deployment to make the app accessible online
+* Flask application structure and routing
+* Relational database schema design
+* CRUD operations for Outfit inventory
+* Category relationship using SQLAlchemy foreign keys
+* Frontend integration with HTML, CSS, and JavaScript
+* Deployment setup for Render
 
 ---
-A PostgreSQL database was created on Render and connected using an environment variable (DATABASE_URL).
 
 ## 🗄️ Database Design
 
-### Tables:
+### Tables
 
 **Category**
 
-* id (Primary Key)
-* name
+* `id` — Primary key
+* `name` — Category title (unique)
 
 **Outfit**
 
-* id (Primary Key)
-* name
-* price
-* quantity
-* category_id (Foreign Key)
+* `id` — Primary key
+* `name` — Outfit name
+* `description` — Text description
+* `image_url` — Image path or URL
+* `quantity` — Stock quantity
+* `price` — Price in Euros
+* `category_id` — Foreign key to `categories.id`
 
-### Relationship:
+### Relationship
 
 * One Category → Many Outfits
-* Implemented using SQLAlchemy relationship and foreign key
+* Implemented using SQLAlchemy `relationship` and `ForeignKey`
+* Categories are reused instead of storing duplicate category text on each outfit
 
 ---
 
-## ⚙️ Features
+## 🚀 Application Features
 
-* Add outfits
-* View outfits (Gallery)
-* Update outfits (stock and details)
-* Delete outfits
-* Search outfits
-* Filter by category
-* Sort alphabetically
-* Stock management (dispatch feature)
-
----
-
-## 🧮 Advanced SQL Features
-
-* Aggregate functions (AVG, MIN, MAX)
-* Subqueries (above-average stock)
-* JOIN between Outfit and Category
-* PostgreSQL VIEW (`category_summary`)
-* TRIGGER to prevent negative stock
+* Full CRUD for outfits:
+  * Create new outfits
+  * Read and filter outfits in the gallery
+  * Update outfit details and category
+  * Delete outfits
+* Stock dispatch feature to subtract inventory quantity
+* Search and category filter
+* Sort gallery results alphabetically
+* Highlight above-average stock items
 
 ---
 
-## 🔄 CRUD Implementation
+## 📦 Routes
 
-* **Create:** Add new outfit via form
-* **Read:** Display outfits in gallery
-* **Update:** Modify outfit details and stock
-* **Delete:** Remove outfit from database
-
----
-
-## 🧪 Testing
-
-* Manual testing of all routes
-* Tested add, update, delete operations
-* Verified database updates
-* Tested deployed version on Render
+* `/` — Home page
+* `/gallery` — Outfit gallery with search, sort, and category filter
+* `/add` — Add new outfit form
+* `/edit/<id>` — Edit existing outfit
+* `/delete/<id>` — Delete outfit record
+* `/dispatch/<id>` — Dispatch stock quantity from an outfit
+* `/high-stock` — Show outfits with stock above average
+* `/about` — Information page
+* `/contact` — Contact page
+* `/api/add-outfit` — JSON POST endpoint for outfit creation
 
 ---
 
-## ☁️ Deployment (Render)
+## 💡 Design and Implementation Notes
 
-The application is deployed using Render.
-
-### Steps:
-
-1. Create a PostgreSQL database on Render
-2. Copy the database connection URL
-3. Add it as an environment variable:
-
-   * Key: `DATABASE_URL`
-4. Set build command:
-
-   ```
-   pip install -r requirements.txt
-   ```
-5. Set start command:
-
-   ```
-   gunicorn app:app
-   ```
+* The app uses `Flask-SQLAlchemy` for ORM mapping and `SQLAlchemy` for query construction
+* Categories are created or reused automatically when adding/editing outfits
+* The gallery uses join queries to connect `Outfit` and `Category`
+* Template pages use dynamic category selection and a clean edit workflow
+* Form validation ensures required fields and non-negative inventory values
 
 ---
 
-## 💻 Running Locally
+## 🧪 Local Testing
 
-1. Create virtual environment:
+### 1. Install dependencies
 
-   ```
-   python -m venv venv
-   ```
-2. Activate environment
-3. Install dependencies:
+```powershell
+python -m venv venv
+venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
 
-   ```
-   pip install -r requirements.txt
-   ```
-4. Set DATABASE_URL
-5. Run:
+### 2. Configure the database
 
-   ```
-   python app.py
-   ```
+For PostgreSQL:
+
+```powershell
+$env:DATABASE_URL = "postgresql://postgres:password@localhost:5432/african_fashion"
+```
+
+For local SQLite testing:
+
+```powershell
+$env:DATABASE_URL = "sqlite:///local_test.db"
+```
+
+### 3. Run the application
+
+```powershell
+python app.py
+```
+
+### 4. Test the app
+
+Use the web interface to verify the `/gallery`, `/add`, `/edit/<id>`, `/delete/<id>`, and `/high-stock` flows.
+
+---
+
+## ☁️ Deployment Instructions
+
+This app is designed for deployers such as Render.com.
+
+### Render setup
+
+1. Create a new Web Service in Render
+2. Connect the GitHub repository
+3. Set the build command:
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Set the start command:
+
+```bash
+gunicorn app:app
+```
+
+5. Add environment variables:
+
+* `DATABASE_URL` — PostgreSQL connection string
+
+6. Deploy and verify the app on the provided Render URL
 
 ---
 
 ## 📁 Project Structure
 
-* app.py → Flask routes and logic
+* `app.py` — Flask routes and application logic
+* `models.py` — SQLAlchemy database models
+* `templates/` — HTML templates
+* `static/css/` — Stylesheets
+* `static/js/` — JavaScript code
+* `requirements.txt` — Python dependencies
+
+---
+
+## 📚 Improvements Made
+
+* Added `Category` model usage and foreign key relationships
+* Added edit/update route for outfits
+* Improved gallery filters and category joins
+* Added README documentation and deployment instructions
+* Added local testing guidance and route documentation
+
+---
+
+## Image Sources
+
+Wikimedia Commons (Public Domain)
+Alamy
+Getty Images
+
+---
+
+## Author
+
+Hlengiwe Ncube
 * models.py → Database models
 * templates/ → HTML templates
 * static/ → CSS, JS, images
