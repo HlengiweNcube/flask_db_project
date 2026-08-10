@@ -20,7 +20,11 @@ db.init_app(app)
 
 
 def get_or_create_category(name):
-    """Return an existing Category or create a new one."""
+    """Return an existing Category or create a new one.
+
+    This helper normalizes category names and ensures the Category table
+    is used consistently across Outfit records.
+    """
     if not name:
         return None
 
@@ -36,6 +40,7 @@ def get_or_create_category(name):
 
 
 def get_category_choices():
+    """Return category options for templates."""
     return Category.query.order_by(Category.name).all()
 
 
@@ -46,10 +51,12 @@ def home():
 
 @app.route('/gallery')
 def gallery():
+    """Render the gallery view with filters, sorting, and category counts."""
     category_name = request.args.get('category')
     sort = request.args.get('sort')
     search = request.args.get('search')
 
+    # Use a join to connect Outfits to Categories for accurate category filtering
     query = Outfit.query.join(Category).filter(Outfit.quantity > 0)
 
     if search:
@@ -62,6 +69,8 @@ def gallery():
         query = query.order_by(Outfit.name.asc())
     elif sort == 'desc':
         query = query.order_by(Outfit.name.desc())
+
+    # Provide a category list for sidebar filters and current selection highlighting
 
     outfits = query.all()
 
@@ -106,6 +115,7 @@ def gallery():
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
+    """Add a new outfit and create or reuse the selected category."""
     if request.method == 'POST':
         name = request.form['name'].strip()
         category_name = request.form['category'].strip()
@@ -122,11 +132,13 @@ def add():
         existing = Outfit.query.filter_by(name=name, category_id=category.id).first()
 
         if existing:
+            # If the same outfit exists, update stock and pricing
             existing.quantity += quantity
             existing.price = price
             existing.description = description
             existing.image_url = image_url
         else:
+            # Create a new Outfit record and associate it with its Category
             new_outfit = Outfit(
                 name=name,
                 description=description,
@@ -145,6 +157,7 @@ def add():
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_outfit(id):
+    """Edit an existing outfit and update its category if needed."""
     outfit = Outfit.query.get_or_404(id)
 
     if request.method == 'POST':
@@ -175,6 +188,7 @@ def delete(id):
 
 @app.route('/dispatch/<int:id>', methods=['POST'])
 def dispatch(id):
+    """Decrease an outfit stock level when it is dispatched."""
     outfit = Outfit.query.get_or_404(id)
     amount = request.form.get('amount')
 
@@ -196,6 +210,7 @@ def dispatch(id):
 
 @app.route('/high-stock')
 def high_stock():
+    """Display outfits with stock above the average level."""
     avg = db.session.query(func.avg(Outfit.quantity)).scalar() or 0
 
     outfits = Outfit.query.join(Category).filter(
@@ -258,6 +273,7 @@ def contact():
 
 @app.route('/api/add-outfit', methods=['POST'])
 def add_outfit_api():
+    """Create an outfit record from a JSON API request."""
     data = request.get_json()
 
     name = data.get('name')
