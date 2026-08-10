@@ -37,7 +37,7 @@ The application, titled **"African Fashion Showcase"**, will:
 
 * Create: Add new outfits via a form
 * Read: View all outfits in a gallery
-* Update: Edit existing outfit details (planned)
+* Update: Edit existing outfit details and category
 * Delete: Remove outfits
 
 ### 4.2 Pages
@@ -45,33 +45,54 @@ The application, titled **"African Fashion Showcase"**, will:
 * Home page
 * Gallery page (view outfits)
 * Add Outfit page
+* Edit Outfit page
 * About page
 * Contact page
 
 ### 4.3 Database Integration
 
-* PostgreSQL database to store outfit data
+* PostgreSQL database to store outfit and category data
 * Flask-SQLAlchemy for ORM
+* Relationship between outfits and categories
 * Persistent storage of:
 
   * Outfit name
   * Category
   * Description
   * Image URL
+  * Quantity
+  * Price
 
 ---
 
 ## 5. Database Design
 
-### Table: Outfit
+### Tables
 
-| Field       | Type    | Description                  |
-| ----------- | ------- | ---------------------------- |
-| id          | Integer | Primary key                  |
-| name        | String  | Name of outfit               |
-| category    | String  | Type (Ankara, Dashiki, etc.) |
-| description | Text    | Outfit description           |
-| image_url   | String  | Link to image                |
+**Category**
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| id | Integer | Primary key |
+| name | String | Category name |
+
+**Outfit**
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| id | Integer | Primary key |
+| name | String | Outfit name |
+| description | Text | Outfit description |
+| image_url | String | Image URL or path |
+| quantity | Integer | Stock quantity |
+| price | Float | Outfit price |
+| category_id | Integer | Foreign key to `categories.id` |
+
+### Relationship
+
+* One Category → Many Outfits
+* Implemented using SQLAlchemy `relationship`
+* Supports category reuse and accurate joins
 
 ---
 
@@ -120,34 +141,51 @@ african-fashion-app/
 * Initialize Git repository
 * Set up virtual environment
 * Install Flask and dependencies
+* Prepare `requirements.txt`
 
 ### Phase 2: Basic Flask App
 
-* Create app.py
-* Set up routes
-* Create base template
+* Create `app.py`
+* Set up routes for home, gallery, add, delete, and high-stock
+* Create base template and navigation
 
 ### Phase 3: Frontend Development
 
 * Build HTML pages
 * Apply CSS styling
-* Add JavaScript functionality
+* Add JavaScript interactivity and form validation
 
 ### Phase 4: Database Integration
 
-* Configure PostgreSQL
-* Create models
-* Implement CRUD operations
+* Configure PostgreSQL / SQLite testing database
+* Create models with `Category` and `Outfit`
+* Implement CRUD operations and category relationships
 
 ### Phase 5: Testing
 
-* Test routes and forms
-* Validate database operations
+* Add `pytest` support and a simple test file
+* Test `/`, `/add`, `/edit/<id>`, and `/gallery`
+* Verify category relations and database write operations
 
 ### Phase 6: Deployment
 
 * Push project to GitHub
 * Deploy using Render.com
+* Add `DATABASE_URL` environment variable
+* Verify website after deployment
+
+---
+
+## 9. Development Evidence
+
+* Committed category relationship and model improvements
+* Committed edit/update route and gallery fixes
+* Added `README.md` deployment and testing documentation
+* Added `pytest` support and local test file
+* Verified syntax with `python -m py_compile`
+* Pushed changes to GitHub remote
+
+---
 
 ---
 
