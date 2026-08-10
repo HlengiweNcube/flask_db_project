@@ -1,6 +1,7 @@
-from flask import Flask, jsonify, render_template, request, redirect
+from flask import Flask, abort, jsonify, render_template, request, redirect
 from models import db, Outfit, Category
-from sqlalchemy import func
+from sqlalchemy import func, select
+from sqlalchemy.orm import joinedload
 
 import os
 
@@ -29,7 +30,9 @@ def get_or_create_category(name):
         return None
 
     normalized_name = name.strip().title()
-    category = Category.query.filter_by(name=normalized_name).first()
+    category = db.session.execute(
+        select(Category).filter_by(name=normalized_name)
+    ).scalar_one_or_none()
 
     if not category:
         category = Category(name=normalized_name)
@@ -41,7 +44,43 @@ def get_or_create_category(name):
 
 def get_category_choices():
     """Return category options for templates."""
-    return Category.query.order_by(Category.name).all()
+    return db.session.scalars(
+        select(Category).order_by(Category.name)
+    ).all()
+
+
+def get_category_counts(self_filter=None):
+    """Return counts of outfits grouped by category."""
+    stmt = select(Category.name, func.count(Outfit.id)).join(Outfit)
+    if self_filter is not None:
+        stmt = stmt.filter(self_filter)
+    stmt = stmt.group_by(Category.name)
+    return db.session.execute(stmt).all()
+
+
+def get_stock_stats(self_filter=None):
+    """Return aggregated outfit stock statistics."""
+    stmt = select(
+        func.count(Outfit.id),
+        func.sum(Outfit.quantity),
+        func.avg(Outfit.quantity),
+        func.min(Outfit.quantity),
+        func.max(Outfit.quantity),
+    )
+    if self_filter is not None:
+        stmt = stmt.filter(self_filter)
+
+    stats = db.session.execute(stmt).one_or_none()
+    if not stats:
+        return (0, 0, 0, 0, 0)
+
+    return (
+        stats[0] or 0,
+        stats[1] or 0,
+        round(stats[2], 2) if stats[2] else 0,
+        stats[3] or 0,
+        stats[4] or 0,
+    )
 
 
 @app.route('/')
@@ -57,48 +96,32 @@ def gallery():
     search = request.args.get('search')
 
     # Use a join to connect Outfits to Categories for accurate category filtering
-    query = Outfit.query.join(Category).filter(Outfit.quantity > 0)
+    stmt = select(Outfit).join(Category).filter(Outfit.quantity > 0)
 
     if search:
-        query = query.filter(Outfit.name.ilike(f"%{search}%"))
+        stmt = stmt.filter(Outfit.name.ilike(f"%{search}%"))
 
     if category_name:
-        query = query.filter(Category.name == category_name)
+        stmt = stmt.filter(Category.name == category_name)
 
     if sort == 'asc':
-        query = query.order_by(Outfit.name.asc())
+        stmt = stmt.order_by(Outfit.name.asc())
     elif sort == 'desc':
-        query = query.order_by(Outfit.name.desc())
+        stmt = stmt.order_by(Outfit.name.desc())
 
     # Provide a category list for sidebar filters and current selection highlighting
 
-    outfits = query.all()
+    outfits = db.session.scalars(stmt).all()
 
-    category_counts = db.session.query(
-        Category.name,
-        func.count(Outfit.id)
-    ).join(Outfit).filter(Outfit.quantity > 0).group_by(Category.name).all()
+    category_counts = get_category_counts(Outfit.quantity > 0)
+    stats = get_stock_stats(Outfit.quantity > 0)
 
-    stats = db.session.query(
-        func.count(Outfit.id),
-        func.sum(Outfit.quantity),
-        func.avg(Outfit.quantity),
-        func.min(Outfit.quantity),
-        func.max(Outfit.quantity)
-    ).filter(Outfit.quantity > 0).first()
-
-    stats = (
-        stats[0] or 0,
-        stats[1] or 0,
-        round(stats[2], 2) if stats[2] else 0,
-        stats[3] or 0,
-        stats[4] or 0
-    )
-
-    results = db.session.query(
-        Outfit.name,
-        Category.name
-    ).join(Category).filter(Outfit.quantity > 0).all()
+    results = db.session.scalars(
+        select(Outfit)
+        .options(joinedload(Outfit.category))
+        .join(Category)
+        .filter(Outfit.quantity > 0)
+    ).all()
 
     categories = get_category_choices()
 
@@ -129,7 +152,9 @@ def add():
         if not category:
             return render_template('add_outfit.html', categories=get_category_choices(), error="Category is required")
 
-        existing = Outfit.query.filter_by(name=name, category_id=category.id).first()
+        existing = db.session.scalars(
+            select(Outfit).filter_by(name=name, category_id=category.name)
+        ).first()
 
         if existing:
             # If the same outfit exists, update stock and pricing
@@ -158,7 +183,9 @@ def add():
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_outfit(id):
     """Edit an existing outfit and update its category if needed."""
-    outfit = Outfit.query.get_or_404(id)
+    outfit = db.session.get(Outfit, id)
+    if not outfit:
+        abort(404)
 
     if request.method == 'POST':
         outfit.name = request.form['name'].strip()
@@ -180,7 +207,9 @@ def edit_outfit(id):
 
 @app.route('/delete/<int:id>')
 def delete(id):
-    outfit = Outfit.query.get_or_404(id)
+    outfit = db.session.get(Outfit, id)
+    if not outfit:
+        abort(404)
     db.session.delete(outfit)
     db.session.commit()
     return redirect('/gallery')
@@ -189,7 +218,9 @@ def delete(id):
 @app.route('/dispatch/<int:id>', methods=['POST'])
 def dispatch(id):
     """Decrease an outfit stock level when it is dispatched."""
-    outfit = Outfit.query.get_or_404(id)
+    outfit = db.session.get(Outfit, id)
+    if not outfit:
+        abort(404)
     amount = request.form.get('amount')
 
     if not amount:
@@ -211,42 +242,26 @@ def dispatch(id):
 @app.route('/high-stock')
 def high_stock():
     """Display outfits with stock above the average level."""
-    avg = db.session.query(func.avg(Outfit.quantity)).scalar() or 0
+    avg = db.session.execute(select(func.avg(Outfit.quantity))).scalar() or 0
 
-    outfits = Outfit.query.join(Category).filter(
-        Outfit.quantity > avg,
-        Outfit.quantity > 0
+    outfits = db.session.scalars(
+        select(Outfit)
+        .join(Category)
+        .filter(
+            Outfit.quantity > avg,
+            Outfit.quantity > 0
+        )
     ).all()
 
-    category_counts = db.session.query(
-        Category.name,
-        func.count(Outfit.id)
-    ).join(Outfit).filter(
-        Outfit.quantity > avg
-    ).group_by(Category.name).all()
+    category_counts = get_category_counts(Outfit.quantity > avg)
+    stats = get_stock_stats(Outfit.quantity > avg)
 
-    stats = db.session.query(
-        func.count(Outfit.id),
-        func.sum(Outfit.quantity),
-        func.avg(Outfit.quantity),
-        func.min(Outfit.quantity),
-        func.max(Outfit.quantity)
-    ).filter(
-        Outfit.quantity > avg
-    ).first()
-
-    stats = (
-        stats[0] or 0,
-        stats[1] or 0,
-        round(stats[2], 2) if stats[2] else 0,
-        stats[3] or 0,
-        stats[4] or 0
-    )
-
-    results = db.session.query(
-        Outfit.name,
-        Category.name
-    ).join(Category).filter(Outfit.quantity > avg).all()
+    results = db.session.scalars(
+        select(Outfit)
+        .options(joinedload(Outfit.category))
+        .join(Category)
+        .filter(Outfit.quantity > avg)
+    ).all()
 
     categories = get_category_choices()
 

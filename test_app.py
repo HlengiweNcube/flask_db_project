@@ -1,4 +1,8 @@
+import os
 import pytest
+from sqlalchemy import select
+
+os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
 
 from app import app, db, get_or_create_category
 from models import Outfit, Category
@@ -40,7 +44,9 @@ def test_add_outfit(test_client):
     assert b'Test Dress' in response.data
 
     with app.app_context():
-        outfit = Outfit.query.filter_by(name='Test Dress').first()
+        outfit = db.session.scalars(
+            select(Outfit).filter_by(name='Test Dress')
+        ).first()
         assert outfit is not None
         assert outfit.category.name == 'Women'
         assert outfit.quantity == 5
@@ -77,7 +83,7 @@ def test_edit_outfit(test_client):
     assert response.status_code == 200
 
     with app.app_context():
-        updated = Outfit.query.get(outfit_id)
+        updated = db.session.get(Outfit, outfit_id)
         assert updated.name == 'Updated Shirt'
         assert updated.quantity == 3
         assert updated.price == 20.0
