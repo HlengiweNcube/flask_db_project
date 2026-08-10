@@ -46,17 +46,17 @@ def home():
 
 @app.route('/gallery')
 def gallery():
-    category = request.args.get('category')
+    category_name = request.args.get('category')
     sort = request.args.get('sort')
     search = request.args.get('search')
 
-    query = Outfit.query.filter(Outfit.quantity > 0)
+    query = Outfit.query.join(Category).filter(Outfit.quantity > 0)
 
     if search:
         query = query.filter(Outfit.name.ilike(f"%{search}%"))
 
-    if category:
-        query = query.filter(Outfit.category == category)
+    if category_name:
+        query = query.filter(Category.name == category_name)
 
     if sort == 'asc':
         query = query.order_by(Outfit.name.asc())
@@ -66,10 +66,9 @@ def gallery():
     outfits = query.all()
 
     category_counts = db.session.query(
-        Outfit.category,
+        Category.name,
         func.count(Outfit.id)
-    ).filter(Outfit.quantity > 0)\
-     .group_by(Outfit.category).all()
+    ).join(Outfit).filter(Outfit.quantity > 0).group_by(Category.name).all()
 
     stats = db.session.query(
         func.count(Outfit.id),
@@ -79,59 +78,91 @@ def gallery():
         func.max(Outfit.quantity)
     ).filter(Outfit.quantity > 0).first()
 
-    # VIEW
-    category_view = db.session.execute(
-        text("SELECT * FROM category_summary")
-    ).fetchall()
+    stats = (
+        stats[0] or 0,
+        stats[1] or 0,
+        round(stats[2], 2) if stats[2] else 0,
+        stats[3] or 0,
+        stats[4] or 0
+    )
 
-    # JOIN
     results = db.session.query(
-    Outfit.name,
-    Category.name
-  ).join(Category, Outfit.category == Category.name)\
- .filter(Outfit.quantity > 0)\
- .all()
-    
+        Outfit.name,
+        Category.name
+    ).join(Category).filter(Outfit.quantity > 0).all()
+
+    categories = get_category_choices()
+
     return render_template(
         'gallery.html',
         outfits=outfits,
         category_counts=category_counts,
         stats=stats,
         results=results,
-        category_view=category_view
+        categories=categories,
+        selected_category=category_name
     )
 
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
     if request.method == 'POST':
-        name = request.form['name']
-        category = request.form['category']
-        description = request.form['description']
-        image_url = request.form['image_url']
+        name = request.form['name'].strip()
+        category_name = request.form['category'].strip()
+        description = request.form.get('description', '').strip()
+        image_url = request.form['image_url'].strip()
         quantity = int(request.form.get('quantity', 0))
         price = float(request.form.get('price', 0.0))
 
-        existing = Outfit.query.filter_by(name=name, category=category).first()
+        category = get_or_create_category(category_name)
+
+        if not category:
+            return render_template('add_outfit.html', categories=get_category_choices(), error="Category is required")
+
+        existing = Outfit.query.filter_by(name=name, category_id=category.id).first()
 
         if existing:
             existing.quantity += quantity
             existing.price = price
+            existing.description = description
+            existing.image_url = image_url
         else:
-            new = Outfit(
+            new_outfit = Outfit(
                 name=name,
-                category=category,
                 description=description,
                 image_url=image_url,
                 quantity=quantity,
-                price=price
+                price=price,
+                category=category
             )
-            db.session.add(new)
+            db.session.add(new_outfit)
 
         db.session.commit()
         return redirect('/gallery')
 
-    return render_template('add_outfit.html')
+    return render_template('add_outfit.html', categories=get_category_choices())
+
+
+@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+def edit_outfit(id):
+    outfit = Outfit.query.get_or_404(id)
+
+    if request.method == 'POST':
+        outfit.name = request.form['name'].strip()
+        category_name = request.form['category'].strip()
+        outfit.description = request.form.get('description', '').strip()
+        outfit.image_url = request.form['image_url'].strip()
+        outfit.quantity = int(request.form.get('quantity', 0))
+        outfit.price = float(request.form.get('price', 0.0))
+
+        category = get_or_create_category(category_name)
+        if category:
+            outfit.category = category
+
+        db.session.commit()
+        return redirect('/gallery')
+
+    return render_template('edit_outfit.html', outfit=outfit, categories=get_category_choices())
 
 
 @app.route('/delete/<int:id>')
@@ -167,21 +198,18 @@ def dispatch(id):
 def high_stock():
     avg = db.session.query(func.avg(Outfit.quantity)).scalar() or 0
 
-    # ✅ FILTER HIGH STOCK + ONLY VALID ITEMS
-    outfits = Outfit.query.filter(
+    outfits = Outfit.query.join(Category).filter(
         Outfit.quantity > avg,
         Outfit.quantity > 0
     ).all()
 
-    # ✅ GROUP BY
     category_counts = db.session.query(
-        Outfit.category,
+        Category.name,
         func.count(Outfit.id)
-    ).filter(
+    ).join(Outfit).filter(
         Outfit.quantity > avg
-    ).group_by(Outfit.category).all()
+    ).group_by(Category.name).all()
 
-    # ✅ AGGREGATES
     stats = db.session.query(
         func.count(Outfit.id),
         func.sum(Outfit.quantity),
@@ -192,7 +220,6 @@ def high_stock():
         Outfit.quantity > avg
     ).first()
 
-    # ✅ HANDLE NULLS
     stats = (
         stats[0] or 0,
         stats[1] or 0,
@@ -201,18 +228,12 @@ def high_stock():
         stats[4] or 0
     )
 
-    # ✅ JOIN
     results = db.session.query(
         Outfit.name,
         Category.name
-    ).join(Category, Outfit.category == Category.name)\
-     .filter(Outfit.quantity > avg)\
-     .all()
+    ).join(Category).filter(Outfit.quantity > avg).all()
 
-    # ✅ VIEW
-    category_view = db.session.execute(
-        text("SELECT * FROM category_summary")
-    ).fetchall()
+    categories = get_category_choices()
 
     return render_template(
         'gallery.html',
@@ -222,7 +243,8 @@ def high_stock():
         category_counts=category_counts,
         stats=stats,
         results=results,
-        category_view=category_view
+        categories=categories,
+        selected_category=None
     )
 @app.route('/about')
 def about():
@@ -239,12 +261,11 @@ def add_outfit_api():
     data = request.get_json()
 
     name = data.get('name')
-    category = data.get('category')
+    category_name = data.get('category')
     quantity = data.get('quantity')
     price = data.get('price')
 
-    # ✅ VALIDATION
-    if not name or not category:
+    if not name or not category_name:
         return jsonify({"error": "Name and category required"}), 400
 
     if quantity is None or quantity < 0:
@@ -253,14 +274,14 @@ def add_outfit_api():
     if price is None or price < 0:
         return jsonify({"error": "Invalid price"}), 400
 
-    # ✅ SAVE
+    category = get_or_create_category(category_name)
     outfit = Outfit(
         name=name,
-        category=category,
         description=data.get('description'),
         image_url=data.get('image_url'),
         quantity=quantity,
-        price=price
+        price=price,
+        category=category
     )
 
     db.session.add(outfit)

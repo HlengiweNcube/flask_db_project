@@ -3,10 +3,22 @@
 {% block content %}
 <h1>Edit Outfit</h1>
 
- <form onsubmit="submitFormJSON(event)">
+ <form method="POST" action="{{ url_for('edit_outfit', id=outfit.id) }}">
+    <label>Name:</label><br>
     <input type="text" name="name" value="{{ outfit.name }}" required><br><br>
-    <input type="text" name="category" value="{{ outfit.category }}"><br><br>
+
+    <label>Category:</label><br>
+    <input list="category-list" name="category" value="{{ outfit.category_name }}" required>
+    <datalist id="category-list">
+        {% for cat in categories %}
+            <option value="{{ cat.name }}">
+        {% endfor %}
+    </datalist>
+    <br><br>
+
+    <label>Description:</label><br>
     <textarea name="description">{{ outfit.description }}</textarea><br><br>
+    <label>Image URL:</label><br>
     <input type="text" name="image_url" value="{{ outfit.image_url }}"><br><br>
 
     <label>Quantity:</label><br>

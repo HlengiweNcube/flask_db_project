@@ -53,14 +53,16 @@
 </div>
 
 <div class="gallery-layout">
-    <!-- 🎯 CATEGORY FILTER (JS) -->
+    <!-- 🎯 CATEGORY FILTER -->
     <div class="sidebar">
         <a href="{{ url_for('high_stock') }}" class="btn">High Stock</a>
         <a href="{{ url_for('gallery') }}" class="btn">All</a>
-        <a href="{{ url_for('gallery', category='Women') }}" class="btn">Women</a>
-        <a href="{{ url_for('gallery', category='Men') }}" class="btn">Men</a>
-        <a href="{{ url_for('gallery', category='Teens') }}" class="btn">Teens</a>
-        <a href="{{ url_for('gallery', category='Children') }}" class="btn">Children</a>
+        {% if categories %}
+            <h4>Category filters</h4>
+            {% for cat in categories %}
+                <a href="{{ url_for('gallery', category=cat.name) }}" class="btn{% if selected_category == cat.name %} active{% endif %}">{{ cat.name }}</a>
+            {% endfor %}
+        {% endif %}
     </div>
 
     <!-- 🧥 OUTFITS -->
@@ -68,12 +70,12 @@
 
         {% if outfits %}
         {% for outfit in outfits %}
-        <div class="card" data-category="{{ outfit.category }}">
+        <div class="card" data-category="{{ outfit.category_name }}">
 
             <img src="{{ url_for('static', filename='images/' + outfit.image_url) }}" alt="{{ outfit.name }}">
 
             <h3>{{ outfit.name }}</h3>
-            <p><strong>Category:</strong> {{ outfit.category }}</p>
+            <p><strong>Category:</strong> {{ outfit.category_name }}</p>
 
             <!-- 💰 PRICE -->
             <p><strong>Price:</strong> €{{ outfit.price }}</p>
@@ -87,7 +89,8 @@
                 <button type="submit">Dispatch</button>
             </form>
 
-            <a href="/delete/{{ outfit.id }}" class="delete-btn delete-space"
+            <a href="{{ url_for('edit_outfit', id=outfit.id) }}" class="btn edit-btn">Edit</a>
+            <a href="{{ url_for('delete', id=outfit.id) }}" class="delete-btn delete-space"
                 onclick="return confirm('Are you sure you want to delete this outfit?')">
                 Delete</a>
 

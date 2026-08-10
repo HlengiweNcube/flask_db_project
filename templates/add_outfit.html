@@ -4,13 +4,19 @@
 
 <h1>Add Outfit</h1>
 
- <form onsubmit="submitFormJSON(event)" novalidate>
+ <form method="POST" action="{{ url_for('add') }}" novalidate>
 
     <label>Name:</label><br>
     <input type="text" name="name" required><br><br>
 
     <label>Category:</label><br>
-    <input type="text" name="category"><br><br>
+    <input list="category-list" name="category" required>
+    <datalist id="category-list">
+        {% for cat in categories %}
+            <option value="{{ cat.name }}">
+        {% endfor %}
+    </datalist>
+    <br><br>
 
     <label>Description:</label><br>
     <textarea name="description"></textarea><br><br>
