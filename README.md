@@ -140,6 +140,8 @@ Use the web interface to verify the `/gallery`, `/add`, `/edit/<id>`, `/delete/<
 
 This app is designed for deployers such as Render.com.
 
+For full deployment and environment setup details, see `deployment.md`.
+
 ### Render setup
 
 1. Create a new Web Service in Render
@@ -172,6 +174,8 @@ gunicorn app:app
 * `static/css/` — Stylesheets
 * `static/js/` — JavaScript code
 * `requirements.txt` — Python dependencies
+* `deployment.md` — Deployment and setup guide
+* `test_app.py` — Automated pytest coverage
 
 ---
 
@@ -182,23 +186,8 @@ gunicorn app:app
 * Improved gallery filters and category joins
 * Added README documentation and deployment instructions
 * Added local testing guidance and route documentation
-
----
-
-## Image Sources
-
-Wikimedia Commons (Public Domain)
-Alamy
-Getty Images
-
----
-
-## Author
-
-Hlengiwe Ncube
-* models.py → Database models
-* templates/ → HTML templates
-* static/ → CSS, JS, images
+* Added `deployment.md` for deployment evidence and setup
+* Added automated `pytest` tests
 
 ---
 
