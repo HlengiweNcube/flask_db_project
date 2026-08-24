@@ -108,6 +108,17 @@ def get_image_choices():
     )
 
 
+def image_category_conflict(image_name, category_id, outfit_id=None):
+    """Return whether an image is already assigned to another category."""
+    statement = select(Outfit).where(
+        Outfit.image_url == image_name,
+        Outfit.category_id != category_id,
+    )
+    if outfit_id is not None:
+        statement = statement.where(Outfit.id != outfit_id)
+    return db.session.scalar(statement) is not None
+
+
 def get_category_counts(self_filter=None):
     """Return counts of outfits grouped by category."""
     stmt = select(Category.name, func.count(Outfit.id)).join(Outfit)
@@ -352,6 +363,14 @@ def add():
         if not category:
             return render_template('add_outfit.html', categories=get_category_options(), images=get_image_choices(), error="Category is required")
 
+        if image_category_conflict(values['image_url'], category.id):
+            return render_template(
+                'add_outfit.html',
+                categories=get_category_options(),
+                images=get_image_choices(),
+                error='That image is already assigned to a different category.'
+            ), 400
+
         existing = db.session.scalars(
             select(Outfit).filter_by(name=values['name'], category_id=category.id)
         ).first()
@@ -399,7 +418,16 @@ def edit_outfit(id):
         outfit.image_url = values['image_url']
         outfit.quantity = values['quantity']
         outfit.price = values['price']
-        outfit.category = get_or_create_category(values['category_name'])
+        category = get_or_create_category(values['category_name'])
+        if image_category_conflict(values['image_url'], category.id, outfit.id):
+            return render_template(
+                'edit_outfit.html',
+                outfit=outfit,
+                categories=get_category_options(),
+                images=get_image_choices(),
+                error='That image is already assigned to a different category.'
+            ), 400
+        outfit.category = category
 
         db.session.commit()
         return redirect('/gallery')
@@ -496,6 +524,8 @@ def add_outfit_api():
         return jsonify({"error": str(error)}), 400
 
     category = get_or_create_category(values['category_name'])
+    if image_category_conflict(values['image_url'], category.id):
+        return jsonify({"error": "That image is already assigned to a different category."}), 400
     outfit = Outfit(
         name=values['name'],
         description=values['description'],

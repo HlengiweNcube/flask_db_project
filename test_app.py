@@ -116,6 +116,21 @@ def test_category_used_by_outfit_cannot_be_deleted(test_client):
         assert db.session.get(Category, category_id) is not None
 
 
+def test_same_image_cannot_be_used_across_categories(test_client):
+    first = {
+        'name': 'Women Outfit', 'category': 'Women', 'image_url': 'shared.jpg',
+        'quantity': '1', 'price': '20',
+    }
+    test_client.post('/add', data=first)
+
+    response = test_client.post('/add', data={
+        **first, 'name': 'Men Outfit', 'category': 'Men',
+    })
+
+    assert response.status_code == 400
+    assert b'already assigned to a different category' in response.data
+
+
 def test_add_rejects_empty_required_fields(test_client):
     response = test_client.post('/add', data={
         'name': '', 'category': '', 'image_url': '', 'quantity': '', 'price': '',

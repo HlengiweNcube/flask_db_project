@@ -106,6 +106,9 @@ dispatching, deleting, and using the API require authentication.
 Authenticated users can manage categories and images from **Manage Categories
 and Images**. Images currently used by outfits cannot be deleted, and renaming
 an image updates its outfit references automatically.
+The same image can be shared by outfits in one category, but it cannot be
+assigned to outfits in different categories. This keeps category presentation
+consistent and prevents accidental cross-category image reuse.
 
 ---
 
