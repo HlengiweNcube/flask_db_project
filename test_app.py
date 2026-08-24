@@ -41,6 +41,15 @@ def test_inventory_requires_login(test_client):
     assert '/login' in response.headers['Location']
 
 
+def test_add_form_shows_category_dropdown(test_client):
+    response = test_client.get('/add')
+
+    assert response.status_code == 200
+    assert b'<select id="category" name="category" required>' in response.data
+    assert b'<option value="Women">Women</option>' in response.data
+    assert b'<option value="Traditional">Traditional</option>' in response.data
+
+
 def test_add_outfit(test_client):
     response = test_client.post(
         '/add',

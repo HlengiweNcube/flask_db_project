@@ -18,6 +18,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+DEFAULT_CATEGORIES = ('Women', 'Men', 'Children', 'Accessories', 'Traditional')
+
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.login_message = 'Please log in to manage the inventory.'
@@ -80,10 +82,16 @@ def parse_outfit_values(source):
 
 
 def get_category_choices():
-    """Return category options for templates."""
+    """Return database categories for templates."""
     return db.session.scalars(
         select(Category).order_by(Category.name)
     ).all()
+
+
+def get_category_options():
+    """Return default and previously created categories for dropdowns."""
+    existing_names = {category.name for category in get_category_choices()}
+    return sorted(existing_names.union(DEFAULT_CATEGORIES))
 
 
 def get_category_counts(self_filter=None):
@@ -222,12 +230,12 @@ def add():
         try:
             values = parse_outfit_values(request.form)
         except ValueError as error:
-            return render_template('add_outfit.html', categories=get_category_choices(), error=str(error)), 400
+            return render_template('add_outfit.html', categories=get_category_options(), error=str(error)), 400
 
         category = get_or_create_category(values['category_name'])
 
         if not category:
-            return render_template('add_outfit.html', categories=get_category_choices(), error="Category is required")
+            return render_template('add_outfit.html', categories=get_category_options(), error="Category is required")
 
         existing = db.session.scalars(
             select(Outfit).filter_by(name=values['name'], category_id=category.id)
@@ -254,7 +262,7 @@ def add():
         db.session.commit()
         return redirect('/gallery')
 
-    return render_template('add_outfit.html', categories=get_category_choices())
+    return render_template('add_outfit.html', categories=get_category_options())
 
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
@@ -269,7 +277,7 @@ def edit_outfit(id):
         try:
             values = parse_outfit_values(request.form)
         except ValueError as error:
-            return render_template('edit_outfit.html', outfit=outfit, categories=get_category_choices(), error=str(error)), 400
+            return render_template('edit_outfit.html', outfit=outfit, categories=get_category_options(), error=str(error)), 400
 
         outfit.name = values['name']
         outfit.description = values['description']
@@ -281,7 +289,7 @@ def edit_outfit(id):
         db.session.commit()
         return redirect('/gallery')
 
-    return render_template('edit_outfit.html', outfit=outfit, categories=get_category_choices())
+    return render_template('edit_outfit.html', outfit=outfit, categories=get_category_options())
 
 
 @app.route('/delete/<int:id>', methods=['POST'])

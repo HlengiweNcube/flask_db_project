@@ -11,13 +11,13 @@
     <label>Name:</label><br>
     <input type="text" name="name" required><br><br>
 
-    <label>Category:</label><br>
-    <input list="category-list" name="category" required>
-    <datalist id="category-list">
-        {% for cat in categories %}
-            <option value="{{ cat.name }}">
+    <label for="category">Category:</label><br>
+    <select id="category" name="category" required>
+        <option value="" selected disabled>Choose a category</option>
+        {% for category in categories %}
+            <option value="{{ category }}">{{ category }}</option>
         {% endfor %}
-    </datalist>
+    </select>
     <br><br>
 
     <label>Description:</label><br>

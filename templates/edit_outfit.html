@@ -9,13 +9,12 @@
     <label>Name:</label><br>
     <input type="text" name="name" value="{{ outfit.name }}" required><br><br>
 
-    <label>Category:</label><br>
-    <input list="category-list" name="category" value="{{ outfit.category_name }}" required>
-    <datalist id="category-list">
-        {% for cat in categories %}
-            <option value="{{ cat.name }}">
+    <label for="category">Category:</label><br>
+    <select id="category" name="category" required>
+        {% for category in categories %}
+            <option value="{{ category }}"{% if category == outfit.category_name %} selected{% endif %}>{{ category }}</option>
         {% endfor %}
-    </datalist>
+    </select>
     <br><br>
 
     <label>Description:</label><br>

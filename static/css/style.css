@@ -691,11 +691,16 @@ main {
     font-weight: bold;
 }
 
+form input,
+form select,
+form textarea,
 .form-group input,
+.form-group select,
 .form-group textarea {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 5px;
+    font: inherit;
 }
 
 /* BUTTON STYLE */
