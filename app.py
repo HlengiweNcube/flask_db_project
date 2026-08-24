@@ -169,6 +169,24 @@ def register():
     return render_template('register.html')
 
 
+@app.route('/categories', methods=['GET', 'POST'])
+@login_required
+def categories():
+    """Allow authenticated users to create and view reusable categories."""
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip().title()
+        if not name:
+            return render_template('categories.html', categories=get_category_choices(), error='Category name cannot be empty.'), 400
+        if db.session.scalar(select(Category).where(Category.name == name)):
+            return render_template('categories.html', categories=get_category_choices(), error='That category already exists.'), 400
+
+        db.session.add(Category(name=name))
+        db.session.commit()
+        return redirect(url_for('categories'))
+
+    return render_template('categories.html', categories=get_category_choices())
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Authenticate a user before allowing inventory management."""

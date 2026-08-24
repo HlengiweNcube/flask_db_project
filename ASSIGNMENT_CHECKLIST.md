@@ -114,6 +114,7 @@ The following HTML files have been created:
 - [x] `/contact` - Contact page (`contact()`)
 - [x] `/api/add-outfit` - JSON API endpoint (POST) (`add_outfit_api()`)
 - [x] `/login`, `/register`, and `/logout` authentication routes
+- [x] `/categories` route for adding and viewing reusable categories
 
 ### HTTP Methods
 
@@ -126,6 +127,7 @@ The following HTML files have been created:
 - [x] `Category` model (SQLAlchemy ORM)
 - [x] `Outfit` model (SQLAlchemy ORM)
 - [x] `User` model with hashed passwords for authenticated inventory access
+- [x] Dedicated category-management interface with duplicate protection
 - [x] Helper functions for category management
 - [x] Helper functions for statistics calculation
 

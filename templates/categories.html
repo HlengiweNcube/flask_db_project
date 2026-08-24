@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Manage Categories</h1>
+<p>Add reusable categories here before creating outfits.</p>
+
+{% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+
+<form method="POST" action="{{ url_for('categories') }}">
+    <label for="category-name">New category name:</label><br>
+    <input id="category-name" type="text" name="name" placeholder="e.g. Ceremonial Wear" required maxlength="50"><br><br>
+    <button type="submit" class="btn-black">Add category</button>
+</form>
+
+<h2>Available categories</h2>
+<ul>
+    {% for category in categories %}
+        <li>{{ category.name }}</li>
+    {% else %}
+        <li>No categories have been added yet.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

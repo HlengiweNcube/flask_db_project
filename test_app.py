@@ -66,6 +66,22 @@ def test_add_form_explains_outfit_name(test_client):
     assert b'Xhosa Wedding Dress' in response.data
 
 
+def test_authenticated_user_can_add_category(test_client):
+    response = test_client.post('/categories', data={'name': 'Ceremonial Wear'})
+
+    assert response.status_code == 302
+    with app.app_context():
+        assert db.session.scalar(select(Category.name).where(Category.name == 'Ceremonial Wear')) == 'Ceremonial Wear'
+
+
+def test_category_page_rejects_duplicate_names(test_client):
+    test_client.post('/categories', data={'name': 'Women'})
+    response = test_client.post('/categories', data={'name': 'women'})
+
+    assert response.status_code == 400
+    assert b'That category already exists.' in response.data
+
+
 def test_add_rejects_empty_required_fields(test_client):
     response = test_client.post('/add', data={
         'name': '', 'category': '', 'image_url': '', 'quantity': '', 'price': '',

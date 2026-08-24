@@ -79,6 +79,7 @@ This project documents and demonstrates:
 * Sort gallery results alphabetically
 * Highlight above-average stock items
 * Login protection for inventory management
+* Dedicated category management page with duplicate-name protection
 
 ---
 
@@ -97,6 +98,7 @@ This project documents and demonstrates:
 * `/login` — Authenticate an inventory user
 * `/register` — Create an account
 * `/logout` — End the current session
+* `/categories` — View and add reusable categories
 
 The home, gallery, About, and Contact pages are public. Adding, editing,
 dispatching, deleting, and using the API require authentication.
@@ -107,6 +109,7 @@ dispatching, deleting, and using the API require authentication.
 
 * The app uses `Flask-SQLAlchemy` for ORM mapping and `SQLAlchemy` for query construction
 * Categories are created or reused automatically when adding/editing outfits
+* Authenticated users can also add categories directly from `/categories`
 * The gallery uses join queries to connect `Outfit` and `Category`
 * Template pages use dynamic category selection and a clean edit workflow
 * Add and Edit forms provide dropdowns for categories and available images
