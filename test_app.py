@@ -116,7 +116,7 @@ def test_category_used_by_outfit_cannot_be_deleted(test_client):
         assert db.session.get(Category, category_id) is not None
 
 
-def test_same_image_cannot_be_used_across_categories(test_client):
+def test_same_image_cannot_be_used_by_different_outfits(test_client):
     first = {
         'name': 'Women Outfit', 'category': 'Women', 'image_url': 'shared.jpg',
         'quantity': '1', 'price': '20',
@@ -128,7 +128,7 @@ def test_same_image_cannot_be_used_across_categories(test_client):
     })
 
     assert response.status_code == 400
-    assert b'already assigned to a different category' in response.data
+    assert b'already assigned to a different outfit' in response.data
 
 
 def test_same_outfit_name_cannot_be_used_across_categories(test_client):
@@ -229,7 +229,7 @@ def test_category_is_reused_when_outfits_are_added(test_client):
     }
 
     test_client.post('/add', data={**outfit_data, 'name': 'First Dress'})
-    test_client.post('/add', data={**outfit_data, 'name': 'Second Dress'})
+    test_client.post('/add', data={**outfit_data, 'name': 'Second Dress', 'image_url': 'dress-two.jpg'})
 
     with app.app_context():
         assert db.session.scalar(select(Category.id)) is not None
