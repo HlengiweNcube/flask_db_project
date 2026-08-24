@@ -146,6 +146,15 @@ def test_same_outfit_name_cannot_be_used_across_categories(test_client):
     assert b'outfit name is already assigned to a different category' in response.data
 
 
+def test_category_page_uses_image_dropdown(test_client):
+    response = test_client.get('/categories')
+
+    assert response.status_code == 200
+    assert b'id="image-management-select"' in response.data
+    assert b'id="rename-image-form"' in response.data
+    assert b'id="delete-image-form"' in response.data
+
+
 def test_add_rejects_empty_required_fields(test_client):
     response = test_client.post('/add', data={
         'name': '', 'category': '', 'image_url': '', 'quantity': '', 'price': '',

@@ -18,3 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
+
+function updateImageActions(select) {
+    const filename = encodeURIComponent(select.value);
+    document.getElementById("rename-image-form").action = `/images/${filename}/rename`;
+    document.getElementById("delete-image-form").action = `/images/${filename}/delete`;
+    document.getElementById("rename-image-name").value = select.value;
+}

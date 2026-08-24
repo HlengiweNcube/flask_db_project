@@ -38,22 +38,21 @@
     <input id="image" type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp" required>
     <button type="submit">Upload image</button>
 </form>
-<ul>
+<label for="image-management-select">Select an image to manage:</label>
+<select id="image-management-select" onchange="updateImageActions(this)"{% if not images %} disabled{% endif %}>
     {% for image in images %}
-        <li class="management-item">
-            <span>{{ image }}</span>
-            <div class="management-actions">
-                <form method="POST" action="{{ url_for('rename_image', filename=image) }}">
-                    <input type="text" name="name" value="{{ image }}" required>
-                    <button type="submit">Rename</button>
-                </form>
-                <form method="POST" action="{{ url_for('delete_image', filename=image) }}">
-                    <button type="submit">Delete</button>
-                </form>
-            </div>
-        </li>
+        <option value="{{ image }}">{{ image }}</option>
     {% else %}
-        <li>No images have been uploaded yet.</li>
+        <option>No images have been uploaded yet.</option>
     {% endfor %}
-</ul>
+</select>
+<div class="management-actions image-actions">
+    <form id="rename-image-form" method="POST" action="{% if images %}{{ url_for('rename_image', filename=images[0]) }}{% endif %}">
+        <input id="rename-image-name" type="text" name="name" value="{% if images %}{{ images[0] }}{% endif %}" required{% if not images %} disabled{% endif %}>
+        <button type="submit"{% if not images %} disabled{% endif %}>Rename</button>
+    </form>
+    <form id="delete-image-form" method="POST" action="{% if images %}{{ url_for('delete_image', filename=images[0]) }}{% endif %}">
+        <button type="submit"{% if not images %} disabled{% endif %}>Delete selected image</button>
+    </form>
+</div>
 {% endblock %}
