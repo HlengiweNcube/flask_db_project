@@ -697,6 +697,86 @@ main {
     margin: 12px 0;
 }
 
+.management-page {
+    margin: 0 auto;
+    max-width: 980px;
+    padding: 36px 24px 56px;
+}
+
+.management-heading {
+    border-bottom: 1px solid #d8d0c4;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+}
+
+.management-heading h1 {
+    margin: 4px 0 8px;
+}
+
+.management-heading p:last-child {
+    color: #665f57;
+    margin: 0;
+}
+
+.eyebrow {
+    color: #9a4b2d;
+    font-size: 0.78rem;
+    font-weight: bold;
+    letter-spacing: 0.08em;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.management-section {
+    background: #fffdf9;
+    border: 1px solid #ded6ca;
+    border-radius: 8px;
+    margin: 20px 0;
+    padding: 22px;
+}
+
+.section-heading {
+    align-items: baseline;
+    border-bottom: 1px solid #ebe4da;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 18px;
+}
+
+.section-heading h2 {
+    margin: 0 0 10px;
+}
+
+.section-heading span {
+    color: #756d64;
+    font-size: 0.9rem;
+}
+
+.add-resource-form {
+    margin-bottom: 22px;
+}
+
+.resource-input-row {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.resource-input-row input {
+    flex: 1;
+}
+
+.resource-input-row .btn-black {
+    width: auto;
+}
+
+.management-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
 .management-item {
     align-items: center;
     display: flex;
@@ -752,6 +832,15 @@ form textarea,
 }
 
 @media (max-width: 700px) {
+    .resource-input-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .resource-input-row .btn-black {
+        width: 100%;
+    }
+
     .management-item,
     .management-actions {
         align-items: stretch;

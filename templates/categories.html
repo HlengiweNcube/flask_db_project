@@ -1,19 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Manage Categories and Images</h1>
-<p>Add and maintain the categories and images used by outfits.</p>
+<section class="management-page">
+<div class="management-heading">
+    <p class="eyebrow">Inventory setup</p>
+    <h1>Manage Categories and Images</h1>
+    <p>Add and maintain the options used by your outfit collection.</p>
+</div>
 
 {% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
 
-<form method="POST" action="{{ url_for('categories') }}">
-    <label for="category-name">New category name:</label><br>
-    <input id="category-name" type="text" name="name" placeholder="e.g. Ceremonial Wear" required maxlength="50"><br><br>
-    <button type="submit" class="btn-black">Add category</button>
-</form>
-
-<h2>Available categories</h2>
-<ul>
+<section class="management-section">
+    <div class="section-heading"><h2>Categories</h2><span>{{ categories|length }} available</span></div>
+    <form method="POST" action="{{ url_for('categories') }}" class="add-resource-form">
+        <label for="category-name">New category name:</label>
+        <div class="resource-input-row">
+            <input id="category-name" type="text" name="name" placeholder="e.g. Ceremonial Wear" required maxlength="50">
+            <button type="submit" class="btn-black">Add category</button>
+        </div>
+    </form>
+    <ul class="management-list">
     {% for category in categories %}
         <li class="management-item">
             <span>{{ category.name }}</span>
@@ -30,15 +36,19 @@
     {% else %}
         <li>No categories have been added yet.</li>
     {% endfor %}
-</ul>
+    </ul>
+</section>
 
-<h2>Available images</h2>
-<form method="POST" action="{{ url_for('upload_image') }}" enctype="multipart/form-data">
-    <label for="image">Upload a new image:</label>
-    <input id="image" type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp" required>
-    <button type="submit">Upload image</button>
-</form>
-<label for="image-management-select">Select an image to manage:</label>
+<section class="management-section">
+    <div class="section-heading"><h2>Images</h2><span>{{ images|length }} available</span></div>
+    <form method="POST" action="{{ url_for('upload_image') }}" enctype="multipart/form-data" class="add-resource-form">
+        <label for="image">Upload a new image:</label>
+        <div class="resource-input-row">
+            <input id="image" type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp" required>
+            <button type="submit" class="btn-black">Upload image</button>
+        </div>
+    </form>
+    <label for="image-management-select">Select an image to manage:</label>
 <select id="image-management-select" onchange="updateImageActions(this)"{% if not images %} disabled{% endif %}>
     {% for image in images %}
         <option value="{{ image }}">{{ image }}</option>
@@ -55,4 +65,6 @@
         <button type="submit"{% if not images %} disabled{% endif %}>Delete selected image</button>
     </form>
 </div>
+</section>
+</section>
 {% endblock %}
