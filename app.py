@@ -19,6 +19,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
 
+
+def initialize_database():
+    """Create any missing tables when a new local or hosted database starts."""
+    with app.app_context():
+        db.create_all()
+
+
+initialize_database()
+
 DEFAULT_CATEGORIES = ('Women', 'Men', 'Children', 'Accessories', 'Traditional')
 
 login_manager = LoginManager()

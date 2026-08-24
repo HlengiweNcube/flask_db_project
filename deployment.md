@@ -128,14 +128,9 @@ screenshots. Render supplies the value to the application at runtime.
 
 ### 4. Create the database tables
 
-After the PostgreSQL database is available, open a Render shell (or run the
-command from a trusted machine using the same `DATABASE_URL`) and run:
-
-```bash
-flask --app app init-db
-```
-
-This creates the `categories` and `outfits` tables from the SQLAlchemy models.
+The application creates any missing tables automatically when the Render web
+service starts, so the free Render plan does not require Shell access. This
+creates the `users`, `categories`, and `outfits` tables from the SQLAlchemy models.
 The `Outfit.category_id` column is a foreign key to `Category.id`, and each
 outfit is connected through the `Category.outfits` relationship.
 It also creates the `users` table used for authentication. Open `/register`
