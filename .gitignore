@@ -46,6 +46,7 @@ local_test.db
 
 # IDEs
 .vscode/
+.vs/
 .idea/
 *.swp
 *.swo
@@ -56,6 +57,15 @@ local_test.db
 .coverage
 .pytest_cache/
 htmlcov/
+
+# Unrelated imported/generated evidence files
+static/images/seed_data.json
+static/images/staticfiles/
+static/images/.vscode/
+static/images/htmlcov/
+static/images/venv/
+static/images/.coverage
+static/images/.env
 
 # Build and deployment
 build/

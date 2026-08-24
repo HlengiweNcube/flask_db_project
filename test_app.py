@@ -26,6 +26,12 @@ def test_home_page(test_client):
     assert b'African Fashion' in response.data
 
 
+def test_about_page(test_client):
+    response = test_client.get('/about')
+    assert response.status_code == 200
+    assert b'About' in response.data
+
+
 def test_add_outfit(test_client):
     response = test_client.post(
         '/add',
