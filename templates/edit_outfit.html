@@ -19,8 +19,12 @@
 
     <label>Description:</label><br>
     <textarea name="description">{{ outfit.description }}</textarea><br><br>
-    <label>Image URL:</label><br>
-    <input type="text" name="image_url" value="{{ outfit.image_url }}"><br><br>
+    <label for="image_url">Image:</label><br>
+    <select id="image_url" name="image_url" required>
+        {% for image in images %}
+            <option value="{{ image }}"{% if image == outfit.image_url %} selected{% endif %}>{{ image }}</option>
+        {% endfor %}
+    </select><br><br>
 
     <label>Quantity:</label><br>
     <input type="number" name="quantity" value="{{ outfit.quantity }}" min="0"><br><br>

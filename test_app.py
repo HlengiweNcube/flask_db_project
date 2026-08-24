@@ -50,6 +50,14 @@ def test_add_form_shows_category_dropdown(test_client):
     assert b'<option value="Traditional">Traditional</option>' in response.data
 
 
+def test_add_form_shows_image_dropdown(test_client):
+    response = test_client.get('/add')
+
+    assert response.status_code == 200
+    assert b'<select id="image_url" name="image_url" required>' in response.data
+    assert b'<option value="lobola.jpg">lobola.jpg</option>' in response.data
+
+
 def test_add_outfit(test_client):
     response = test_client.post(
         '/add',

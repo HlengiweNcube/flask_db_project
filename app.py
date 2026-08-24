@@ -94,6 +94,16 @@ def get_category_options():
     return sorted(existing_names.union(DEFAULT_CATEGORIES))
 
 
+def get_image_choices():
+    """Return selectable image filenames available to the application."""
+    image_directory = os.path.join(app.static_folder, 'images')
+    allowed_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+    return sorted(
+        filename for filename in os.listdir(image_directory)
+        if os.path.splitext(filename)[1].lower() in allowed_extensions
+    )
+
+
 def get_category_counts(self_filter=None):
     """Return counts of outfits grouped by category."""
     stmt = select(Category.name, func.count(Outfit.id)).join(Outfit)
@@ -230,12 +240,12 @@ def add():
         try:
             values = parse_outfit_values(request.form)
         except ValueError as error:
-            return render_template('add_outfit.html', categories=get_category_options(), error=str(error)), 400
+            return render_template('add_outfit.html', categories=get_category_options(), images=get_image_choices(), error=str(error)), 400
 
         category = get_or_create_category(values['category_name'])
 
         if not category:
-            return render_template('add_outfit.html', categories=get_category_options(), error="Category is required")
+            return render_template('add_outfit.html', categories=get_category_options(), images=get_image_choices(), error="Category is required")
 
         existing = db.session.scalars(
             select(Outfit).filter_by(name=values['name'], category_id=category.id)
@@ -262,7 +272,7 @@ def add():
         db.session.commit()
         return redirect('/gallery')
 
-    return render_template('add_outfit.html', categories=get_category_options())
+    return render_template('add_outfit.html', categories=get_category_options(), images=get_image_choices())
 
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
@@ -277,7 +287,7 @@ def edit_outfit(id):
         try:
             values = parse_outfit_values(request.form)
         except ValueError as error:
-            return render_template('edit_outfit.html', outfit=outfit, categories=get_category_options(), error=str(error)), 400
+            return render_template('edit_outfit.html', outfit=outfit, categories=get_category_options(), images=get_image_choices(), error=str(error)), 400
 
         outfit.name = values['name']
         outfit.description = values['description']
@@ -289,7 +299,7 @@ def edit_outfit(id):
         db.session.commit()
         return redirect('/gallery')
 
-    return render_template('edit_outfit.html', outfit=outfit, categories=get_category_options())
+    return render_template('edit_outfit.html', outfit=outfit, categories=get_category_options(), images=get_image_choices())
 
 
 @app.route('/delete/<int:id>', methods=['POST'])

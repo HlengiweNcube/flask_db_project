@@ -54,7 +54,7 @@ This project documents and demonstrates:
 * `id` — Primary key
 * `name` — Outfit name
 * `description` — Text description
-* `image_url` — Image path or URL
+* `image_url` — Filename selected from `static/images/`
 * `quantity` — Stock quantity
 * `price` — Price in Euros
 * `category_id` — Integer foreign key to `categories.id`
@@ -109,6 +109,7 @@ dispatching, deleting, and using the API require authentication.
 * Categories are created or reused automatically when adding/editing outfits
 * The gallery uses join queries to connect `Outfit` and `Category`
 * Template pages use dynamic category selection and a clean edit workflow
+* Add and Edit forms provide dropdowns for categories and available images
 * Server-side validation ensures required fields and non-negative inventory values
 * The JSON API uses the same validation helper as the HTML form
 * Flask-Login protects inventory-changing routes and stores only password hashes

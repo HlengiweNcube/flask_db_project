@@ -23,8 +23,13 @@
     <label>Description:</label><br>
     <textarea name="description"></textarea><br><br>
 
-    <label>Image URL:</label><br>
-    <input type="text" name="image_url"><br><br>
+    <label for="image_url">Image:</label><br>
+    <select id="image_url" name="image_url" required>
+        <option value="" selected disabled>Choose an image</option>
+        {% for image in images %}
+            <option value="{{ image }}">{{ image }}</option>
+        {% endfor %}
+    </select><br><br>
 
     <!-- ✅ QUANTITY FIELD -->
     <label>Quantity:</label><br>
