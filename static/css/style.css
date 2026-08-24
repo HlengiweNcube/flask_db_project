@@ -697,6 +697,32 @@ main {
     margin: 12px 0;
 }
 
+.management-item {
+    align-items: center;
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    max-width: 760px;
+}
+
+.management-actions {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+}
+
+.management-actions form {
+    align-items: center;
+    display: flex;
+    gap: 6px;
+    margin: 0;
+}
+
+.management-actions button {
+    white-space: nowrap;
+}
+
 form input,
 form select,
 form textarea,
@@ -723,6 +749,18 @@ form textarea,
 
 .btn-black:hover {
     background-color: #333;
+}
+
+@media (max-width: 700px) {
+    .management-item,
+    .management-actions {
+        align-items: stretch;
+        flex-wrap: wrap;
+    }
+
+    .management-actions {
+        width: 100%;
+    }
 }
 .slide {
     display: none;

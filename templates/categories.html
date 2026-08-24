@@ -15,15 +15,17 @@
 <h2>Available categories</h2>
 <ul>
     {% for category in categories %}
-        <li>
-            {{ category.name }}
-            <form method="POST" action="{{ url_for('edit_category', id=category.id) }}">
-                <input type="text" name="name" value="{{ category.name }}" required maxlength="50">
-                <button type="submit">Rename</button>
-            </form>
-            <form method="POST" action="{{ url_for('delete_category', id=category.id) }}">
-                <button type="submit">Delete</button>
-            </form>
+        <li class="management-item">
+            <span>{{ category.name }}</span>
+            <div class="management-actions">
+                <form method="POST" action="{{ url_for('edit_category', id=category.id) }}">
+                    <input type="text" name="name" value="{{ category.name }}" required maxlength="50">
+                    <button type="submit">Rename</button>
+                </form>
+                <form method="POST" action="{{ url_for('delete_category', id=category.id) }}">
+                    <button type="submit">Delete</button>
+                </form>
+            </div>
         </li>
     {% else %}
         <li>No categories have been added yet.</li>
@@ -38,15 +40,17 @@
 </form>
 <ul>
     {% for image in images %}
-        <li>
-            {{ image }}
-            <form method="POST" action="{{ url_for('rename_image', filename=image) }}">
-                <input type="text" name="name" value="{{ image }}" required>
-                <button type="submit">Rename</button>
-            </form>
-            <form method="POST" action="{{ url_for('delete_image', filename=image) }}">
-                <button type="submit">Delete</button>
-            </form>
+        <li class="management-item">
+            <span>{{ image }}</span>
+            <div class="management-actions">
+                <form method="POST" action="{{ url_for('rename_image', filename=image) }}">
+                    <input type="text" name="name" value="{{ image }}" required>
+                    <button type="submit">Rename</button>
+                </form>
+                <form method="POST" action="{{ url_for('delete_image', filename=image) }}">
+                    <button type="submit">Delete</button>
+                </form>
+            </div>
         </li>
     {% else %}
         <li>No images have been uploaded yet.</li>
