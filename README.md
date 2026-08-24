@@ -38,6 +38,12 @@ This project documents and demonstrates:
 
 ### Tables
 
+**User**
+
+* `id` — Primary key
+* `username` — Required and unique login name
+* `password_hash` — Securely hashed password; the plain password is never stored
+
 **Category**
 
 * `id` — Primary key
@@ -72,6 +78,7 @@ This project documents and demonstrates:
 * Search and category filter
 * Sort gallery results alphabetically
 * Highlight above-average stock items
+* Login protection for inventory management
 
 ---
 
@@ -87,6 +94,12 @@ This project documents and demonstrates:
 * `/about` — Information page
 * `/contact` — Contact page
 * `/api/add-outfit` — JSON POST endpoint for outfit creation
+* `/login` — Authenticate an inventory user
+* `/register` — Create an account
+* `/logout` — End the current session
+
+The home, gallery, About, and Contact pages are public. Adding, editing,
+dispatching, deleting, and using the API require authentication.
 
 ---
 
@@ -98,6 +111,7 @@ This project documents and demonstrates:
 * Template pages use dynamic category selection and a clean edit workflow
 * Server-side validation ensures required fields and non-negative inventory values
 * The JSON API uses the same validation helper as the HTML form
+* Flask-Login protects inventory-changing routes and stores only password hashes
 
 ---
 
@@ -132,6 +146,9 @@ Create the tables before the first run:
 ```powershell
 python -m flask --app app init-db
 ```
+
+Open `/register` to create a local user, then use `/login` before testing the
+inventory management pages.
 
 Then start the development server:
 

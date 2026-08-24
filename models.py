@@ -1,7 +1,17 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import CheckConstraint
+from flask_login import UserMixin
 
 db = SQLAlchemy()
+
+
+class User(UserMixin, db.Model):
+    """Application user allowed to manage inventory records."""
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), nullable=False, unique=True)
+    password_hash = db.Column(db.String(255), nullable=False)
 
 # ✅ CATEGORY TABLE
 class Category(db.Model):

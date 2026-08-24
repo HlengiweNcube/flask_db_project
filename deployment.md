@@ -138,6 +138,8 @@ flask --app app init-db
 This creates the `categories` and `outfits` tables from the SQLAlchemy models.
 The `Outfit.category_id` column is a foreign key to `Category.id`, and each
 outfit is connected through the `Category.outfits` relationship.
+It also creates the `users` table used for authentication. Open `/register`
+once to create an account, then log in before managing inventory.
 
 ### 5. Deploy and verify
 
@@ -162,6 +164,8 @@ mobile widths and keep screenshots or a short test log as submission evidence.
 * Confirm editing and deletion work without errors
 * Check that stock reporting and high-stock view load correctly
 * Confirm invalid negative quantities are rejected instead of creating rows
+* Confirm anonymous visitors to `/add` are redirected to `/login`
+* Confirm authenticated users can add, edit, dispatch, and delete outfits
 
 ---
 

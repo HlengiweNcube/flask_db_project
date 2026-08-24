@@ -5,7 +5,7 @@ from sqlalchemy import select
 os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
 
 from app import app, db, get_or_create_category
-from models import Outfit, Category
+from models import Outfit, Category, User
 
 
 @pytest.fixture
@@ -15,7 +15,9 @@ def test_client():
 
     with app.app_context():
         db.create_all()
-        yield app.test_client()
+        client = app.test_client()
+        client.post('/register', data={'username': 'test-user', 'password': 'test-password'})
+        yield client
         db.session.remove()
         db.drop_all()
 
@@ -30,6 +32,13 @@ def test_about_page(test_client):
     response = test_client.get('/about')
     assert response.status_code == 200
     assert b'About' in response.data
+
+
+def test_inventory_requires_login(test_client):
+    test_client.post('/logout')
+    response = test_client.get('/add')
+    assert response.status_code == 302
+    assert '/login' in response.headers['Location']
 
 
 def test_add_outfit(test_client):

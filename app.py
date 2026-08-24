@@ -1,9 +1,12 @@
-from flask import Flask, abort, jsonify, render_template, request, redirect
-from models import db, Outfit, Category
+from flask import Flask, abort, jsonify, render_template, request, redirect, url_for
+from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+from werkzeug.security import check_password_hash, generate_password_hash
+from models import db, Outfit, Category, User
 from sqlalchemy import func, select
 import os
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'local-development-change-me')
 
 uri = os.environ.get("DATABASE_URL", "sqlite:///local_test.db")
 
@@ -14,6 +17,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
+
+login_manager = LoginManager()
+login_manager.login_view = 'login'
+login_manager.login_message = 'Please log in to manage the inventory.'
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    """Load the logged-in user from the users table."""
+    return db.session.get(User, int(user_id))
 
 
 def get_or_create_category(name):
@@ -111,6 +125,55 @@ def home():
     return render_template("home.html")
 
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """Create a user account with a securely hashed password."""
+    if current_user.is_authenticated:
+        return redirect(url_for('gallery'))
+
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        if not username or len(password) < 8:
+            return render_template('register.html', error='Username is required and password must be at least 8 characters.'), 400
+        if db.session.scalar(select(User).where(User.username == username)):
+            return render_template('register.html', error='That username is already registered.'), 400
+
+        user = User(username=username, password_hash=generate_password_hash(password))
+        db.session.add(user)
+        db.session.commit()
+        login_user(user)
+        return redirect(url_for('gallery'))
+
+    return render_template('register.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Authenticate a user before allowing inventory management."""
+    if current_user.is_authenticated:
+        return redirect(url_for('gallery'))
+
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        user = db.session.scalar(select(User).where(User.username == username))
+        if not user or not check_password_hash(user.password_hash, password):
+            return render_template('login.html', error='Invalid username or password.'), 401
+        login_user(user)
+        return redirect(request.args.get('next') or url_for('gallery'))
+
+    return render_template('login.html')
+
+
+@app.post('/logout')
+@login_required
+def logout():
+    """End the current authenticated session."""
+    logout_user()
+    return redirect(url_for('home'))
+
+
 @app.route('/gallery')
 def gallery():
     """Render the gallery view with filters, sorting, and category counts."""
@@ -152,6 +215,7 @@ def gallery():
 
 
 @app.route('/add', methods=['GET', 'POST'])
+@login_required
 def add():
     """Add a new outfit and create or reuse the selected category."""
     if request.method == 'POST':
@@ -194,6 +258,7 @@ def add():
 
 
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
 def edit_outfit(id):
     """Edit an existing outfit and update its category if needed."""
     outfit = db.session.get(Outfit, id)
@@ -220,6 +285,7 @@ def edit_outfit(id):
 
 
 @app.route('/delete/<int:id>', methods=['POST'])
+@login_required
 def delete(id):
     outfit = db.session.get(Outfit, id)
     if not outfit:
@@ -230,6 +296,7 @@ def delete(id):
 
 
 @app.route('/dispatch/<int:id>', methods=['POST'])
+@login_required
 def dispatch(id):
     """Decrease an outfit stock level when it is dispatched."""
     outfit = db.session.get(Outfit, id)
@@ -296,6 +363,7 @@ def contact():
 
 
 @app.route('/api/add-outfit', methods=['POST'])
+@login_required
 def add_outfit_api():
     """Create an outfit record from a JSON API request."""
     data = request.get_json(silent=True) or {}

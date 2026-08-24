@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Create account</h1>
+{% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+<form method="POST" action="{{ url_for('register') }}">
+    <label for="username">Username:</label><br>
+    <input id="username" type="text" name="username" required autocomplete="username"><br><br>
+
+    <label for="password">Password (minimum 8 characters):</label><br>
+    <input id="password" type="password" name="password" required minlength="8" autocomplete="new-password"><br><br>
+
+    <button type="submit" class="btn-black">Create account</button>
+</form>
+<p>Already registered? <a href="{{ url_for('login') }}">Log in</a>.</p>
+{% endblock %}
