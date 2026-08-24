@@ -51,7 +51,7 @@ This project documents and demonstrates:
 * `image_url` — Image path or URL
 * `quantity` — Stock quantity
 * `price` — Price in Euros
-* `category_id` — Foreign key to `categories.id`
+* `category_id` — Integer foreign key to `categories.id`
 
 ### Relationship
 
@@ -96,7 +96,8 @@ This project documents and demonstrates:
 * Categories are created or reused automatically when adding/editing outfits
 * The gallery uses join queries to connect `Outfit` and `Category`
 * Template pages use dynamic category selection and a clean edit workflow
-* Form validation ensures required fields and non-negative inventory values
+* Server-side validation ensures required fields and non-negative inventory values
+* The JSON API uses the same validation helper as the HTML form
 
 ---
 
@@ -126,13 +127,30 @@ $env:DATABASE_URL = "sqlite:///local_test.db"
 
 ### 3. Run the application
 
+Create the tables before the first run:
+
+```powershell
+python -m flask --app app init-db
+```
+
+Then start the development server:
+
 ```powershell
 python app.py
 ```
 
 ### 4. Test the app
 
-Use the web interface to verify the `/gallery`, `/add`, `/edit/<id>`, `/delete/<id>`, and `/high-stock` flows.
+Run the automated tests:
+
+```powershell
+python -m pytest -q
+```
+
+The suite uses an isolated in-memory SQLite database and covers the home page,
+category reuse, create/update/delete, dispatch, and invalid API input. The
+browser can then be used to verify the `/gallery`, `/add`, `/edit/<id>`,
+`/delete/<id>`, and `/high-stock` flows.
 
 ---
 
@@ -163,6 +181,11 @@ gunicorn app:app
 * `DATABASE_URL` — PostgreSQL connection string
 
 6. Deploy and verify the app on the provided Render URL
+
+The production database URL is read only from the `DATABASE_URL` environment
+variable. No password or connection string is stored in the repository. Run
+`python -m flask --app app init-db` once against a new database before using
+the hosted forms.
 
 ---
 

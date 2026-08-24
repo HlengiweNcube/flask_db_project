@@ -32,9 +32,7 @@ class Outfit(db.Model):
     quantity = db.Column(db.Integer, nullable=False, default=0)
     price = db.Column(db.Float, nullable=False, default=0.0)
 
-    # The existing database schema stores the category key as a string in the `category` column.
-    # Map it to the Category.name field since the categories table uses unique names.
-    category_id = db.Column('category', db.String(50), db.ForeignKey('categories.name'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
     category = db.relationship('Category', back_populates='outfits')
 
     @property

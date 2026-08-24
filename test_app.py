@@ -87,3 +87,70 @@ def test_edit_outfit(test_client):
         assert updated.name == 'Updated Shirt'
         assert updated.quantity == 3
         assert updated.price == 20.0
+
+
+def test_category_is_reused_when_outfits_are_added(test_client):
+    outfit_data = {
+        'category': 'women',
+        'description': 'A tested outfit',
+        'image_url': 'dress.jpg',
+        'quantity': '2',
+        'price': '30.00',
+    }
+
+    test_client.post('/add', data={**outfit_data, 'name': 'First Dress'})
+    test_client.post('/add', data={**outfit_data, 'name': 'Second Dress'})
+
+    with app.app_context():
+        assert db.session.scalar(select(Category.id)) is not None
+        assert db.session.scalar(select(Category.name)) == 'Women'
+        assert db.session.scalar(select(Category.id).where(Category.name == 'Women')) is not None
+        assert db.session.scalar(select(Category.id).where(Category.name == 'Women')) == db.session.scalar(
+            select(Outfit.category_id).where(Outfit.name == 'First Dress')
+        )
+        assert len(db.session.scalar(select(Category).where(Category.name == 'Women')).outfits) == 2
+
+
+def test_api_rejects_invalid_values(test_client):
+    response = test_client.post('/api/add-outfit', json={
+        'name': 'Invalid Outfit',
+        'category': 'Men',
+        'image_url': 'shirt.jpg',
+        'quantity': -1,
+        'price': 20,
+    })
+
+    assert response.status_code == 400
+    assert response.get_json()['error'] == 'Quantity and price cannot be negative.'
+
+
+def test_dispatch_reduces_stock(test_client):
+    test_client.post('/add', data={
+        'name': 'Dispatch Dress', 'category': 'Women', 'image_url': 'dress.jpg',
+        'quantity': '5', 'price': '20',
+    })
+
+    with app.app_context():
+        outfit_id = db.session.scalar(select(Outfit.id).where(Outfit.name == 'Dispatch Dress'))
+
+    response = test_client.post(f'/dispatch/{outfit_id}', data={'amount': '2'})
+    assert response.status_code == 302
+
+    with app.app_context():
+        assert db.session.get(Outfit, outfit_id).quantity == 3
+
+
+def test_delete_removes_outfit(test_client):
+    test_client.post('/add', data={
+        'name': 'Delete Dress', 'category': 'Women', 'image_url': 'dress.jpg',
+        'quantity': '1', 'price': '20',
+    })
+
+    with app.app_context():
+        outfit_id = db.session.scalar(select(Outfit.id).where(Outfit.name == 'Delete Dress'))
+
+    response = test_client.post(f'/delete/{outfit_id}')
+    assert response.status_code == 302
+
+    with app.app_context():
+        assert db.session.get(Outfit, outfit_id) is None

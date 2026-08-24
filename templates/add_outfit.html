@@ -4,6 +4,8 @@
 
 <h1>Add Outfit</h1>
 
+{% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+
  <form method="POST" action="{{ url_for('add') }}" novalidate>
 
     <label>Name:</label><br>

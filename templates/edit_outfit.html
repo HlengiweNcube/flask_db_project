@@ -3,6 +3,8 @@
 {% block content %}
 <h1>Edit Outfit</h1>
 
+{% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+
  <form method="POST" action="{{ url_for('edit_outfit', id=outfit.id) }}">
     <label>Name:</label><br>
     <input type="text" name="name" value="{{ outfit.name }}" required><br><br>

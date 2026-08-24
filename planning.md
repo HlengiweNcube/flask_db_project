@@ -178,12 +178,11 @@ african-fashion-app/
 
 ## 9. Development Evidence
 
-* Committed category relationship and model improvements
-* Committed edit/update route and gallery fixes
-* Added `README.md` deployment and testing documentation
-* Added `pytest` support and local test file
-* Verified syntax with `python -m py_compile`
-* Pushed changes to GitHub remote
+* Implemented and tested the category relationship and CRUD routes
+* Added README.md deployment and testing documentation
+* Added pytest coverage for create, update, delete, dispatch, category reuse, and API validation
+* Verified syntax with `python -m py_compile` and route registration with Flask CLI
+* Push the completed repository to GitHub before submission and record the commit URL
 
 ---
 

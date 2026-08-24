@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: african-fashion
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    autoDeploy: true
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: african-fashion-db
+          property: connectionString
+
+databases:
+  - name: african-fashion-db
+    databaseName: african_fashion
+    user: african_fashion_user
