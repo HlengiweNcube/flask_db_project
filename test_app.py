@@ -82,6 +82,40 @@ def test_category_page_rejects_duplicate_names(test_client):
     assert b'That category already exists.' in response.data
 
 
+def test_category_can_be_renamed_and_unused_category_deleted(test_client):
+    with app.app_context():
+        category = Category(name='Women')
+        db.session.add(category)
+        db.session.commit()
+        category_id = category.id
+
+    response = test_client.post(f'/categories/{category_id}/edit', data={'name': 'Adults'})
+    assert response.status_code == 302
+
+    with app.app_context():
+        assert db.session.scalar(select(Category.name).where(Category.id == category_id)) == 'Adults'
+
+    response = test_client.post(f'/categories/{category_id}/delete')
+    assert response.status_code == 302
+
+    with app.app_context():
+        assert db.session.get(Category, category_id) is None
+
+
+def test_category_used_by_outfit_cannot_be_deleted(test_client):
+    test_client.post('/add', data={
+        'name': 'Protected Outfit', 'category': 'Women', 'image_url': 'dress.jpg',
+        'quantity': '1', 'price': '20',
+    })
+    category_id = db.session.scalar(select(Category.id).where(Category.name == 'Women'))
+
+    response = test_client.post(f'/categories/{category_id}/delete')
+
+    assert response.status_code == 302
+    with app.app_context():
+        assert db.session.get(Category, category_id) is not None
+
+
 def test_add_rejects_empty_required_fields(test_client):
     response = test_client.post('/add', data={
         'name': '', 'category': '', 'image_url': '', 'quantity': '', 'price': '',

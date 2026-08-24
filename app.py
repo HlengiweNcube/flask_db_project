@@ -1,6 +1,7 @@
 from flask import Flask, abort, jsonify, render_template, request, redirect, url_for
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 from models import db, Outfit, Category, User
 from sqlalchemy import func, select
 import os
@@ -172,7 +173,7 @@ def register():
 @app.route('/categories', methods=['GET', 'POST'])
 @login_required
 def categories():
-    """Allow authenticated users to create and view reusable categories."""
+    """Allow authenticated users to manage reusable categories and images."""
     if request.method == 'POST':
         name = request.form.get('name', '').strip().title()
         if not name:
@@ -184,7 +185,90 @@ def categories():
         db.session.commit()
         return redirect(url_for('categories'))
 
-    return render_template('categories.html', categories=get_category_choices())
+    return render_template(
+        'categories.html',
+        categories=get_category_choices(),
+        images=get_image_choices(),
+        error=request.args.get('error')
+    )
+
+
+@app.post('/categories/<int:id>/edit')
+@login_required
+def edit_category(id):
+    """Rename a category while preserving its outfit relationships."""
+    category = db.session.get(Category, id)
+    if not category:
+        abort(404)
+    name = request.form.get('name', '').strip().title()
+    if not name:
+        return redirect(url_for('categories', error='Category name cannot be empty.'))
+    duplicate = db.session.scalar(select(Category).where(Category.name == name, Category.id != id))
+    if duplicate:
+        return redirect(url_for('categories', error='That category already exists.'))
+    category.name = name
+    db.session.commit()
+    return redirect(url_for('categories'))
+
+
+@app.post('/categories/<int:id>/delete')
+@login_required
+def delete_category(id):
+    """Delete an unused category without orphaning outfits."""
+    category = db.session.get(Category, id)
+    if not category:
+        abort(404)
+    if category.outfits:
+        return redirect(url_for('categories', error='Categories used by outfits cannot be deleted.'))
+    db.session.delete(category)
+    db.session.commit()
+    return redirect(url_for('categories'))
+
+
+@app.post('/images')
+@login_required
+def upload_image():
+    """Upload a supported image into the application's static image folder."""
+    image = request.files.get('image')
+    filename = secure_filename(image.filename) if image else ''
+    allowed_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+    if not filename or os.path.splitext(filename)[1].lower() not in allowed_extensions:
+        return redirect(url_for('categories', error='Choose a JPG, PNG, GIF, or WEBP image.'))
+    image.save(os.path.join(app.static_folder, 'images', filename))
+    return redirect(url_for('categories'))
+
+
+@app.post('/images/<path:filename>/rename')
+@login_required
+def rename_image(filename):
+    """Rename an image and update outfit records that reference it."""
+    image_directory = os.path.join(app.static_folder, 'images')
+    old_name = secure_filename(filename)
+    new_name = secure_filename(request.form.get('name', ''))
+    allowed_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+    if not new_name or os.path.splitext(new_name)[1].lower() not in allowed_extensions:
+        return redirect(url_for('categories', error='Use a valid image filename.'))
+    old_path = os.path.join(image_directory, old_name)
+    new_path = os.path.join(image_directory, new_name)
+    if not os.path.isfile(old_path) or os.path.exists(new_path):
+        return redirect(url_for('categories', error='The image cannot be renamed.'))
+    os.rename(old_path, new_path)
+    db.session.query(Outfit).filter_by(image_url=old_name).update({'image_url': new_name})
+    db.session.commit()
+    return redirect(url_for('categories'))
+
+
+@app.post('/images/<path:filename>/delete')
+@login_required
+def delete_image(filename):
+    """Delete an unused image so outfit records never point to missing files."""
+    image_name = secure_filename(filename)
+    if db.session.scalar(select(Outfit.id).where(Outfit.image_url == image_name)):
+        return redirect(url_for('categories', error='This image is used by an outfit and cannot be deleted.'))
+    image_path = os.path.join(app.static_folder, 'images', image_name)
+    if os.path.isfile(image_path):
+        os.remove(image_path)
+    return redirect(url_for('categories'))
 
 
 @app.route('/login', methods=['GET', 'POST'])

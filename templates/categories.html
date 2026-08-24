@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Manage Categories</h1>
-<p>Add reusable categories here before creating outfits.</p>
+<h1>Manage Categories and Images</h1>
+<p>Add and maintain the categories and images used by outfits.</p>
 
 {% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
 
@@ -15,9 +15,41 @@
 <h2>Available categories</h2>
 <ul>
     {% for category in categories %}
-        <li>{{ category.name }}</li>
+        <li>
+            {{ category.name }}
+            <form method="POST" action="{{ url_for('edit_category', id=category.id) }}">
+                <input type="text" name="name" value="{{ category.name }}" required maxlength="50">
+                <button type="submit">Rename</button>
+            </form>
+            <form method="POST" action="{{ url_for('delete_category', id=category.id) }}">
+                <button type="submit">Delete</button>
+            </form>
+        </li>
     {% else %}
         <li>No categories have been added yet.</li>
+    {% endfor %}
+</ul>
+
+<h2>Available images</h2>
+<form method="POST" action="{{ url_for('upload_image') }}" enctype="multipart/form-data">
+    <label for="image">Upload a new image:</label>
+    <input id="image" type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp" required>
+    <button type="submit">Upload image</button>
+</form>
+<ul>
+    {% for image in images %}
+        <li>
+            {{ image }}
+            <form method="POST" action="{{ url_for('rename_image', filename=image) }}">
+                <input type="text" name="name" value="{{ image }}" required>
+                <button type="submit">Rename</button>
+            </form>
+            <form method="POST" action="{{ url_for('delete_image', filename=image) }}">
+                <button type="submit">Delete</button>
+            </form>
+        </li>
+    {% else %}
+        <li>No images have been uploaded yet.</li>
     {% endfor %}
 </ul>
 {% endblock %}

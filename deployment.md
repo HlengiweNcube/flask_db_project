@@ -168,6 +168,8 @@ mobile widths and keep screenshots or a short test log as submission evidence.
 * Confirm authenticated users can add, edit, dispatch, and delete outfits
 * Confirm the Add and Edit forms show category and image dropdowns
 * Open `/categories`, add a category, and confirm it appears in the outfit dropdown
+* Upload an image, rename an unused image, and confirm it appears in the outfit dropdown
+* Confirm an image used by an outfit cannot be deleted
 
 ---
 

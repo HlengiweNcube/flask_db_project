@@ -80,6 +80,7 @@ This project documents and demonstrates:
 * Highlight above-average stock items
 * Login protection for inventory management
 * Dedicated category management page with duplicate-name protection
+* Image management page for uploading, renaming, and removing unused images
 
 ---
 
@@ -102,6 +103,9 @@ This project documents and demonstrates:
 
 The home, gallery, About, and Contact pages are public. Adding, editing,
 dispatching, deleting, and using the API require authentication.
+Authenticated users can manage categories and images from **Manage Categories
+and Images**. Images currently used by outfits cannot be deleted, and renaming
+an image updates its outfit references automatically.
 
 ---
 
