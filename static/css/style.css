@@ -691,6 +691,12 @@ main {
     font-weight: bold;
 }
 
+.form-error {
+    color: #b00020;
+    font-weight: bold;
+    margin: 12px 0;
+}
+
 form input,
 form select,
 form textarea,

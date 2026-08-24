@@ -58,6 +58,16 @@ def test_add_form_shows_image_dropdown(test_client):
     assert b'<option value="lobola.jpg">lobola.jpg</option>' in response.data
 
 
+def test_add_rejects_empty_required_fields(test_client):
+    response = test_client.post('/add', data={
+        'name': '', 'category': '', 'image_url': '', 'quantity': '', 'price': '',
+    })
+
+    assert response.status_code == 400
+    assert b'class="form-error"' in response.data
+    assert b'Name, category, image, quantity, and price are required.' in response.data
+
+
 def test_add_outfit(test_client):
     response = test_client.post(
         '/add',

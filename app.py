@@ -59,12 +59,15 @@ def parse_outfit_values(source):
     category_name = str(source.get('category', '')).strip()
     image_url = str(source.get('image_url', '')).strip()
 
-    if not name or not category_name or not image_url:
-        raise ValueError('Name, category, and image URL are required.')
+    raw_quantity = source.get('quantity')
+    raw_price = source.get('price')
+
+    if not name or not category_name or not image_url or raw_quantity in (None, '') or raw_price in (None, ''):
+        raise ValueError('Name, category, image, quantity, and price are required.')
 
     try:
-        quantity = int(source.get('quantity', 0))
-        price = float(source.get('price', 0))
+        quantity = int(raw_quantity)
+        price = float(raw_price)
     except (TypeError, ValueError):
         raise ValueError('Quantity must be a whole number and price must be numeric.')
 
