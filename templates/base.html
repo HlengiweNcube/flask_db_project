@@ -25,6 +25,9 @@
     <a href="{{ url_for('add') }}">Add Outfit</a>
     {% if current_user.is_authenticated %}
         <a href="{{ url_for('categories') }}">Manage Categories and Images</a>
+    {% endif %}
+    <a href="{{ url_for('contact') }}">Contact</a>
+    {% if current_user.is_authenticated %}
         <span>Signed in as {{ current_user.username }}</span>
         <form method="POST" action="{{ url_for('logout') }}" class="logout-form">
             <button type="submit">Log out</button>
@@ -33,7 +36,6 @@
         <a href="{{ url_for('login') }}">Log in</a>
         <a href="{{ url_for('register') }}">Register</a>
     {% endif %}
-    <a href="{{ url_for('contact') }}">Contact</a>
 </nav>
 
 <main>
