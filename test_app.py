@@ -131,6 +131,21 @@ def test_same_image_cannot_be_used_across_categories(test_client):
     assert b'already assigned to a different category' in response.data
 
 
+def test_same_outfit_name_cannot_be_used_across_categories(test_client):
+    first = {
+        'name': 'Traditional Wedding Dress', 'category': 'Women', 'image_url': 'dress-one.jpg',
+        'quantity': '1', 'price': '20',
+    }
+    test_client.post('/add', data=first)
+
+    response = test_client.post('/add', data={
+        **first, 'category': 'Men', 'image_url': 'dress-two.jpg',
+    })
+
+    assert response.status_code == 400
+    assert b'outfit name is already assigned to a different category' in response.data
+
+
 def test_add_rejects_empty_required_fields(test_client):
     response = test_client.post('/add', data={
         'name': '', 'category': '', 'image_url': '', 'quantity': '', 'price': '',
