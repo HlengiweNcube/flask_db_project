@@ -125,17 +125,6 @@ def image_outfit_conflict(image_name, outfit_id=None):
     return db.session.scalar(statement) is not None
 
 
-def outfit_name_category_conflict(outfit_name, category_id, outfit_id=None):
-    """Return whether an outfit name is already assigned to another category."""
-    statement = select(Outfit).where(
-        Outfit.name == outfit_name,
-        Outfit.category_id != category_id,
-    )
-    if outfit_id is not None:
-        statement = statement.where(Outfit.id != outfit_id)
-    return db.session.scalar(statement) is not None
-
-
 def get_category_counts(self_filter=None):
     """Return counts of outfits grouped by category."""
     stmt = select(Category.name, func.count(Outfit.id)).join(Outfit)
@@ -380,11 +369,7 @@ def add():
         if not category:
             return render_template('add_outfit.html', categories=get_category_options(), images=get_image_choices(), error="Category is required")
 
-        existing = db.session.scalars(
-            select(Outfit).filter_by(name=values['name'], category_id=category.id)
-        ).first()
-
-        if image_outfit_conflict(values['image_url'], existing.id if existing else None):
+        if image_outfit_conflict(values['image_url']):
             return render_template(
                 'add_outfit.html',
                 categories=get_category_options(),
@@ -392,31 +377,15 @@ def add():
                 error='That image is already assigned to a different outfit.'
             ), 400
 
-        if outfit_name_category_conflict(values['name'], category.id):
-            return render_template(
-                'add_outfit.html',
-                categories=get_category_options(),
-                images=get_image_choices(),
-                error='That outfit name is already assigned to a different category.'
-            ), 400
-
-        if existing:
-            # If the same outfit exists, update stock and pricing
-            existing.quantity += values['quantity']
-            existing.price = values['price']
-            existing.description = values['description']
-            existing.image_url = values['image_url']
-        else:
-            # Create a new Outfit record and associate it with its Category
-            new_outfit = Outfit(
-                name=values['name'],
-                description=values['description'],
-                image_url=values['image_url'],
-                quantity=values['quantity'],
-                price=values['price'],
-                category=category
-            )
-            db.session.add(new_outfit)
+        new_outfit = Outfit(
+            name=values['name'],
+            description=values['description'],
+            image_url=values['image_url'],
+            quantity=values['quantity'],
+            price=values['price'],
+            category=category
+        )
+        db.session.add(new_outfit)
 
         db.session.commit()
         return redirect('/gallery')
@@ -444,14 +413,6 @@ def edit_outfit(id):
         outfit.quantity = values['quantity']
         outfit.price = values['price']
         category = get_or_create_category(values['category_name'])
-        if outfit_name_category_conflict(values['name'], category.id, outfit.id):
-            return render_template(
-                'edit_outfit.html',
-                outfit=outfit,
-                categories=get_category_options(),
-                images=get_image_choices(),
-                error='That outfit name is already assigned to a different category.'
-            ), 400
         if image_outfit_conflict(values['image_url'], outfit.id):
             return render_template(
                 'edit_outfit.html',
@@ -559,8 +520,6 @@ def add_outfit_api():
     category = get_or_create_category(values['category_name'])
     if image_outfit_conflict(values['image_url']):
         return jsonify({"error": "That image is already assigned to a different outfit."}), 400
-    if outfit_name_category_conflict(values['name'], category.id):
-        return jsonify({"error": "That outfit name is already assigned to a different category."}), 400
     outfit = Outfit(
         name=values['name'],
         description=values['description'],

@@ -109,9 +109,9 @@ an image updates its outfit references automatically.
 The same image can be shared by outfits in one category, but it cannot be
 assigned to outfits in different categories. This keeps category presentation
 consistent and prevents accidental cross-category image reuse.
-The same outfit name follows the same rule: it can be used within one category,
-but the app rejects that name in a different category. Adding the same name and
-category updates the existing stock record instead of creating a duplicate.
+Outfit names may be reused for different garments, including garments in
+different categories. Each submission creates its own outfit record. Image
+filenames remain unique to one outfit so each record has its own picture.
 
 ---
 

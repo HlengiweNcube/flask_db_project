@@ -131,7 +131,7 @@ def test_same_image_cannot_be_used_by_different_outfits(test_client):
     assert b'already assigned to a different outfit' in response.data
 
 
-def test_same_outfit_name_cannot_be_used_across_categories(test_client):
+def test_same_outfit_name_is_allowed_across_categories(test_client):
     first = {
         'name': 'Traditional Wedding Dress', 'category': 'Women', 'image_url': 'dress-one.jpg',
         'quantity': '1', 'price': '20',
@@ -142,8 +142,10 @@ def test_same_outfit_name_cannot_be_used_across_categories(test_client):
         **first, 'category': 'Men', 'image_url': 'dress-two.jpg',
     })
 
-    assert response.status_code == 400
-    assert b'outfit name is already assigned to a different category' in response.data
+    assert response.status_code == 302
+    with app.app_context():
+        outfits = db.session.scalars(select(Outfit).where(Outfit.name == 'Traditional Wedding Dress')).all()
+        assert len(outfits) == 2
 
 
 def test_category_page_uses_image_dropdown(test_client):

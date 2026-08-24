@@ -166,7 +166,7 @@ mobile widths and keep screenshots or a short test log as submission evidence.
 * Upload an image, rename an unused image, and confirm it appears in the outfit dropdown
 * Confirm an image used by an outfit cannot be deleted
 * Confirm using one image in a different category is rejected
-* Confirm using one outfit name in a different category is rejected
+* Confirm the same outfit name can be added for a different garment and category
 
 ---
 
