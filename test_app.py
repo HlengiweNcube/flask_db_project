@@ -58,6 +58,14 @@ def test_add_form_shows_image_dropdown(test_client):
     assert b'<option value="lobola.jpg">lobola.jpg</option>' in response.data
 
 
+def test_add_form_explains_outfit_name(test_client):
+    response = test_client.get('/add')
+
+    assert response.status_code == 200
+    assert b'Outfit name' in response.data
+    assert b'Xhosa Wedding Dress' in response.data
+
+
 def test_add_rejects_empty_required_fields(test_client):
     response = test_client.post('/add', data={
         'name': '', 'category': '', 'image_url': '', 'quantity': '', 'price': '',

@@ -8,8 +8,8 @@
 
  <form method="POST" action="{{ url_for('add') }}" novalidate>
 
-    <label>Name:</label><br>
-    <input type="text" name="name" required><br><br>
+    <label for="name">Outfit name <span title="The name of the clothing item">(i)</span>:</label><br>
+    <input id="name" type="text" name="name" placeholder="e.g. Xhosa Wedding Dress" required><br><br>
 
     <label for="category">Category:</label><br>
     <select id="category" name="category" required>
