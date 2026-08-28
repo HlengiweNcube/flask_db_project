@@ -41,6 +41,18 @@ def test_inventory_requires_login(test_client):
     assert '/login' in response.headers['Location']
 
 
+def test_login_explains_when_account_does_not_exist(test_client):
+    test_client.post('/logout')
+    response = test_client.post('/login', data={
+        'username': 'missing-user',
+        'password': 'test-password',
+    })
+
+    assert response.status_code == 401
+    assert b'No account was found with that username.' in response.data
+    assert b'value="missing-user"' in response.data
+
+
 def test_add_form_shows_category_dropdown(test_client):
     response = test_client.get('/add')
 

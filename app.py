@@ -298,8 +298,18 @@ def login():
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '')
         user = db.session.scalar(select(User).where(User.username == username))
-        if not user or not check_password_hash(user.password_hash, password):
-            return render_template('login.html', error='Invalid username or password.'), 401
+        if not user:
+            return render_template(
+                'login.html',
+                username=username,
+                error='No account was found with that username. Create an account or try again.'
+            ), 401
+        if not check_password_hash(user.password_hash, password):
+            return render_template(
+                'login.html',
+                username=username,
+                error='The password is incorrect. Please try again.'
+            ), 401
         login_user(user)
         return redirect(request.args.get('next') or url_for('gallery'))
 

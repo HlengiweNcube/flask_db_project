@@ -2,10 +2,10 @@
 
 {% block content %}
 <h1>Log in</h1>
-{% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+{% if error %}<p class="form-error" role="alert" aria-live="assertive">{{ error }}</p>{% endif %}
 <form method="POST" action="{{ url_for('login') }}">
     <label for="username">Username:</label><br>
-    <input id="username" type="text" name="username" required autocomplete="username"><br><br>
+    <input id="username" type="text" name="username" value="{{ username or '' }}" required autocomplete="username"><br><br>
 
     <label for="password">Password:</label><br>
     <input id="password" type="password" name="password" required autocomplete="current-password"><br><br>
