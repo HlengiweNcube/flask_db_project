@@ -37,8 +37,12 @@ The following HTML files have been created:
 3. [x] `gallery.html` - Gallery/inventory view (extends base.html)
 4. [x] `add_outfit.html` - Add new outfit form (extends base.html)
 5. [x] `edit_outfit.html` - Edit outfit form (extends base.html)
-6. [x] `about.html` - About page (extends base.html)
-7. [x] `contact.html` - Contact page (extends base.html)
+6. [x] `categories.html` - Category management (extends base.html)
+7. [x] `category_summary.html` - Category statistics view (extends base.html)
+8. [x] `login.html` - Login form (extends base.html)
+9. [x] `register.html` - Registration form (extends base.html)
+10. [x] `about.html` - About page (extends base.html)
+11. [x] `contact.html` - Contact page (extends base.html)
 
 **Requirements Met**:
 - [x] At least 5 HTML files created
@@ -196,7 +200,7 @@ The following HTML files have been created:
 - [x] Test for adding outfits
 - [x] Test for editing outfits
 - [x] SQLite in-memory database for testing
-- [x] All tests passing (7/7): `python -m pytest -q`
+- [x] All tests passing (22/22): `python -m pytest -q`
 
 ### Local Execution
 
