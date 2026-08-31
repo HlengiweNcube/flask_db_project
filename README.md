@@ -254,11 +254,27 @@ the hosted forms.
 
 ---
 
-## Image Sources
+## References
 
-Wikimedia Commons (Public Domain)
-Alamy
-Getty Images
+### Image Sources
+
+* Wikimedia Commons (Public Domain) — https://commons.wikimedia.org
+* Alamy — https://www.alamy.com
+* Getty Images — https://www.gettyimages.com
+
+Images are used for educational, non-commercial coursework purposes only.
+
+### Documentation and Technical References
+
+* Flask documentation — https://flask.palletsprojects.com
+* Flask-SQLAlchemy documentation — https://flask-sqlalchemy.palletsprojects.com
+* SQLAlchemy documentation — https://docs.sqlalchemy.org
+* Flask-Login documentation — https://flask-login.readthedocs.io
+* Werkzeug documentation (password hashing, `secure_filename`) — https://werkzeug.palletsprojects.com
+* PostgreSQL documentation — https://www.postgresql.org/docs
+* Render documentation (deployment, Blueprints, environment variables) — https://render.com/docs
+* MDN Web Docs (HTML, CSS, JavaScript reference) — https://developer.mozilla.org
+* pytest documentation — https://docs.pytest.org
 
 ---
 
