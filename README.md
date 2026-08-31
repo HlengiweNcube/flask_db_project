@@ -19,6 +19,8 @@ Hlengiwe Ncube
 | GitHub Repository | https://github.com/HlengiweNcube/flask_db_project |
 | Live Web App      | https://flask-db-project.onrender.com             |
 
+> **Note:** The app runs on Render's free tier. If the page takes 20–30 seconds to load on first visit, the service is waking up from idle — refresh once and it will load normally.
+
 ---
 
 ## 🎯 Purpose
