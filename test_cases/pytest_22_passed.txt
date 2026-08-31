@@ -1,0 +1,30 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.1, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\hlehl\Desktop\flask_db_project\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\hlehl\Desktop\flask_db_project
+collected 22 items
+
+test_app.py::test_home_page PASSED                                       [  4%]
+test_app.py::test_about_page PASSED                                      [  9%]
+test_app.py::test_inventory_requires_login PASSED                        [ 13%]
+test_app.py::test_login_explains_when_account_does_not_exist PASSED      [ 18%]
+test_app.py::test_add_form_shows_category_dropdown PASSED                [ 22%]
+test_app.py::test_add_form_shows_image_dropdown PASSED                   [ 27%]
+test_app.py::test_add_form_explains_outfit_name PASSED                   [ 31%]
+test_app.py::test_authenticated_user_can_add_category PASSED             [ 36%]
+test_app.py::test_category_page_rejects_duplicate_names PASSED           [ 40%]
+test_app.py::test_category_can_be_renamed_and_unused_category_deleted PASSED [ 45%]
+test_app.py::test_category_used_by_outfit_cannot_be_deleted PASSED       [ 50%]
+test_app.py::test_same_image_cannot_be_used_by_different_outfits PASSED  [ 54%]
+test_app.py::test_same_outfit_name_is_allowed_across_categories PASSED   [ 59%]
+test_app.py::test_category_page_uses_image_dropdown PASSED               [ 63%]
+test_app.py::test_add_rejects_empty_required_fields PASSED               [ 68%]
+test_app.py::test_add_outfit PASSED                                      [ 72%]
+test_app.py::test_edit_outfit PASSED                                     [ 77%]
+test_app.py::test_category_is_reused_when_outfits_are_added PASSED       [ 81%]
+test_app.py::test_category_summary_view_aggregates_outfits PASSED        [ 86%]
+test_app.py::test_api_rejects_invalid_values PASSED                      [ 90%]
+test_app.py::test_dispatch_reduces_stock PASSED                          [ 95%]
+test_app.py::test_delete_removes_outfit PASSED                           [100%]
+
+============================= 22 passed in 6.53s ==============================
