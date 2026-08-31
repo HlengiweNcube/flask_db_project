@@ -161,6 +161,14 @@ Create the tables before the first run:
 python -m flask --app app init-db
 ```
 
+Optionally load sample outfits so all routes have data to display immediately:
+
+```powershell
+python -m flask seed-db
+```
+
+This inserts 8 sample outfits across four categories (Traditional, Women, Children, Accessories). The command is safe to re-run — it skips any outfit whose image is already assigned.
+
 Open `/register` to create a local user, then use `/login` before testing the
 inventory management pages.
 
