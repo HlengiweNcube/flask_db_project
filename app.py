@@ -9,12 +9,17 @@ import os
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'local-development-change-me')
 
+# Read the database URL from the environment so credentials are never stored in code.
+# Falls back to a local SQLite file when DATABASE_URL is not set (e.g. during development).
 uri = os.environ.get("DATABASE_URL", "sqlite:///local_test.db")
 
+# Render.com supplies the connection string with the legacy "postgres://" prefix.
+# SQLAlchemy 1.4+ requires "postgresql://", so the prefix is corrected here at runtime.
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
+# Disable modification tracking — it is unused and adds memory overhead.
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
