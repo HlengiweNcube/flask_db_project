@@ -577,5 +577,46 @@ def init_db_command():
     print('Database tables created.')
 
 
+@app.cli.command('seed-db')
+def seed_db_command():
+    """Populate the database with sample outfits for testing and demonstration.
+
+    Safe to run multiple times — skips any outfit whose image_url is already
+    taken so existing data is never overwritten.
+    """
+    sample_outfits = [
+        {'name': 'Xibelani Skirt',       'category': 'Traditional', 'image_url': 'xibelani.jpg',      'quantity': 8,  'price': 45.00, 'description': 'Vibrant Tsonga ceremonial skirt worn during traditional dances.'},
+        {'name': 'Zulu Ibheshu',          'category': 'Traditional', 'image_url': 'zulu_men.jpg',      'quantity': 5,  'price': 60.00, 'description': 'Traditional Zulu men\'s rear-apron worn at ceremonies.'},
+        {'name': 'Lobola Dress',          'category': 'Women',       'image_url': 'lobola.jpg',         'quantity': 3,  'price': 120.00,'description': 'Elegant dress traditionally worn during lobola negotiations.'},
+        {'name': 'Tsonga Wedding Outfit', 'category': 'Women',       'image_url': 'wedding2.jpg',       'quantity': 2,  'price': 150.00,'description': 'Colourful Tsonga bridal attire with beadwork detail.'},
+        {'name': 'Zulu Teen Set',         'category': 'Children',    'image_url': 'zulu_teen.jpg',      'quantity': 10, 'price': 35.00, 'description': 'Youth Zulu outfit suitable for cultural events.'},
+        {'name': 'Ukuthwasa Robe',        'category': 'Traditional', 'image_url': 'ukuthwasa.jpg',      'quantity': 4,  'price': 80.00, 'description': 'White ceremonial robe worn by trainee traditional healers.'},
+        {'name': 'Tsonga Women Ensemble', 'category': 'Women',       'image_url': 'tsonga_women.jpg',   'quantity': 6,  'price': 95.00, 'description': 'Full Tsonga women\'s outfit with headwrap and beaded jewellery.'},
+        {'name': 'Izibazana Necklace Set','category': 'Accessories', 'image_url': 'izibazana.jpg',      'quantity': 15, 'price': 25.00, 'description': 'Traditional Zulu beaded necklace set worn with ceremonial dress.'},
+    ]
+
+    added = 0
+    skipped = 0
+    with app.app_context():
+        for data in sample_outfits:
+            if db.session.scalar(select(Outfit).where(Outfit.image_url == data['image_url'])):
+                skipped += 1
+                continue
+            category = get_or_create_category(data['category'])
+            outfit = Outfit(
+                name=data['name'],
+                description=data['description'],
+                image_url=data['image_url'],
+                quantity=data['quantity'],
+                price=data['price'],
+                category=category,
+            )
+            db.session.add(outfit)
+            added += 1
+        db.session.commit()
+
+    print(f'Seeded {added} outfit(s). Skipped {skipped} already-existing outfit(s).')
+
+
 if __name__ == '__main__':
     app.run(debug=True)
