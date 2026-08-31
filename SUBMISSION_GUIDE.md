@@ -12,14 +12,14 @@ My Flask database application is **complete and ready for submission**. All assi
 
 1. **Flask Environment** - Virtual environment with all dependencies
 2. **Flask Application** - 10 routes with proper organization
-3. **HTML Templates** - 7 files (exceeds 5 minimum) using base template inheritance
+3. **HTML Templates** - 11 files (exceeds 5 minimum) using base template inheritance
 4. **CSS Styling** - Modern, responsive stylesheet with professional design
 5. **JavaScript** - Interactive features including filtering, validation, carousels
 6. **Flask Routes** - All sections (home, projects/gallery, skills/high-stock, about, contact) + API
 7. **SQLAlchemy Models** - Category and Outfit with proper relationships
 8. **PostgreSQL Integration** - Full Flask-SQLAlchemy configuration
 9. **CRUD Operations** - Create, Read, Update, Delete all working
-10. **Automated Tests** - 3 pytest tests, all passing ✓
+10. **Automated Tests** - 22 pytest tests, all passing ✓
 11. **Deployment Ready** - Render.com Blueprint with automatic GitHub deploys
 12. **Documentation** - README, deployment guide, docstrings
 
@@ -44,7 +44,7 @@ My Flask database application is **complete and ready for submission**. All assi
 flask_db_project/
 ├── app.py                    # Main Flask application (10 routes)
 ├── models.py                 # SQLAlchemy models (Category, Outfit)
-├── test_app.py              # Pytest tests (3 passing)
+├── test_app.py              # Pytest tests (22 passing)
 ├── requirements.txt         # All dependencies
 ├── render.yaml              # Render service, database, and auto-deploy config
 ├── README.md                # Project documentation
@@ -57,6 +57,10 @@ flask_db_project/
 │   ├── gallery.html       # Inventory gallery
 │   ├── add_outfit.html    # Add form
 │   ├── edit_outfit.html   # Edit form
+│   ├── categories.html    # Category management
+│   ├── category_summary.html # Category stats view
+│   ├── login.html         # Login form
+│   ├── register.html      # Registration form
 │   ├── about.html         # About page
 │   └── contact.html       # Contact page
 ├── static/
@@ -75,9 +79,7 @@ flask_db_project/
 All automated tests pass successfully:
 
 ```
-7 tests passed
-
-====== 3 passed in 1.51s ======
+====== 22 passed ======
 ```
 
 ---
@@ -256,10 +258,10 @@ pytest test_app.py -v
 ## 📊 Quick Facts
 
 - **Total Routes**: 10 (exceeds requirements)
-- **HTML Templates**: 7 (exceeds 5 minimum)
+- **HTML Templates**: 11 (exceeds 5 minimum)
 - **Database Tables**: 2 (Category, Outfit)
 - **CRUD Operations**: 5 (Create, Read, Update, Delete, Dispatch)
-- **Tests Passing**: 3/3 (100%)
+- **Tests Passing**: 22/22 (100%)
 - **JavaScript Features**: 5+ (filtering, validation, carousel, etc.)
 - **CSS Properties**: 100+ (modern, responsive, professional)
 - **Documentation**: Complete (README, deployment guide, checklist)
@@ -269,7 +271,7 @@ pytest test_app.py -v
 ## 🔍 Why This Assignment is Complete
 
 1. ✅ **Exceeds Minimum Requirements**
-   - 7 HTML files (required 5)
+   - 11 HTML files (required 5)
    - 10 routes (required 5+)
    - Bonus API endpoint
    - Bonus inventory dispatch
@@ -317,7 +319,7 @@ Compress-Archive -Path .\ -DestinationPath flask_db_project.zip
 - deployment.md
 - ASSIGNMENT_CHECKLIST.md
 - .gitignore
-- templates/ (all 7 HTML files)
+- templates/ (all 11 HTML files)
 - static/ (CSS, JS, images)
 
 ### Submission Package
