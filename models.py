@@ -15,6 +15,11 @@ class User(UserMixin, db.Model):
 
 # ✅ CATEGORY TABLE
 class Category(db.Model):
+    """Reusable clothing category (e.g. Women, Traditional).
+
+    Normalised into its own table so category names stay consistent
+    across all outfits and can be managed independently.
+    """
     __tablename__ = 'categories'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -28,6 +33,11 @@ class Category(db.Model):
 
 # ✅ OUTFIT TABLE
 class Outfit(db.Model):
+    """A single clothing item held in inventory.
+
+    quantity and price are constrained to >= 0 at the database level
+    so invalid data cannot be inserted even outside the application.
+    """
     __tablename__ = 'outfits'
 
     __table_args__ = (
