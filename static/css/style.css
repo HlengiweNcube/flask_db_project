@@ -697,6 +697,24 @@ main {
     margin: 12px 0;
 }
 
+.summary-table {
+    border-collapse: collapse;
+    margin: 20px 0;
+    width: 100%;
+}
+
+.summary-table th,
+.summary-table td {
+    border: 1px solid #ddd;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.summary-table th {
+    background-color: #333;
+    color: white;
+}
+
 .management-page {
     margin: 0 auto;
     max-width: 980px;

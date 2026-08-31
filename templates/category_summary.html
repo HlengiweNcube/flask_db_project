@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="page-title">Category Summary</h1>
+<p>Totals read from the <code>category_summary</code> database view.</p>
+
+<table class="summary-table">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Total Items</th>
+            <th>Total Stock</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr>
+            <td>{{ row.category_name }}</td>
+            <td>{{ row.total_items }}</td>
+            <td>{{ row.total_stock }}</td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3">No categories yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

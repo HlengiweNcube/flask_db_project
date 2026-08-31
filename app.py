@@ -3,7 +3,7 @@ from flask_login import LoginManager, current_user, login_required, login_user, 
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from models import db, Outfit, Category, User
-from sqlalchemy import func, select
+from sqlalchemy import func, select, text
 import os
 
 app = Flask(__name__)
@@ -24,6 +24,20 @@ def initialize_database():
     """Create any missing tables when a new local or hosted database starts."""
     with app.app_context():
         db.create_all()
+        ensure_category_summary_view()
+
+
+def ensure_category_summary_view():
+    """(Re)create the category_summary reporting view against the current schema."""
+    db.session.execute(text('DROP VIEW IF EXISTS category_summary'))
+    db.session.execute(text(
+        'CREATE VIEW category_summary AS '
+        'SELECT c.id AS category_id, c.name AS category_name, '
+        'COUNT(o.id) AS total_items, COALESCE(SUM(o.quantity), 0) AS total_stock '
+        'FROM categories c LEFT JOIN outfits o ON o.category_id = c.id '
+        'GROUP BY c.id, c.name'
+    ))
+    db.session.commit()
 
 
 initialize_database()
@@ -507,6 +521,16 @@ def high_stock():
         categories=categories,
         selected_category=None
     )
+@app.route('/category-summary')
+def category_summary():
+    """Display aggregated category totals read from the category_summary view."""
+    rows = db.session.execute(text(
+        'SELECT category_name, total_items, total_stock '
+        'FROM category_summary ORDER BY category_name'
+    )).all()
+    return render_template('category_summary.html', rows=rows)
+
+
 @app.route('/about')
 def about():
     return render_template("about.html")

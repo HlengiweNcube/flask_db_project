@@ -1,10 +1,10 @@
 import os
 import pytest
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
 
-from app import app, db, get_or_create_category
+from app import app, db, get_or_create_category, ensure_category_summary_view
 from models import Outfit, Category, User
 
 
@@ -15,6 +15,7 @@ def test_client():
 
     with app.app_context():
         db.create_all()
+        ensure_category_summary_view()
         client = app.test_client()
         client.post('/register', data={'username': 'test-user', 'password': 'test-password'})
         yield client
@@ -262,6 +263,27 @@ def test_category_is_reused_when_outfits_are_added(test_client):
             select(Outfit.category_id).where(Outfit.name == 'First Dress')
         )
         assert len(db.session.scalar(select(Category).where(Category.name == 'Women')).outfits) == 2
+
+
+def test_category_summary_view_aggregates_outfits(test_client):
+    test_client.post('/add', data={
+        'name': 'View Dress One', 'category': 'Women', 'image_url': 'view-one.jpg',
+        'quantity': '3', 'price': '10',
+    })
+    test_client.post('/add', data={
+        'name': 'View Dress Two', 'category': 'Women', 'image_url': 'view-two.jpg',
+        'quantity': '4', 'price': '10',
+    })
+
+    response = test_client.get('/category-summary')
+
+    assert response.status_code == 200
+    with app.app_context():
+        row = db.session.execute(text(
+            "SELECT total_items, total_stock FROM category_summary WHERE category_name = 'Women'"
+        )).one()
+        assert row.total_items == 2
+        assert row.total_stock == 7
 
 
 def test_api_rejects_invalid_values(test_client):
