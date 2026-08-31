@@ -228,6 +228,35 @@ the hosted forms.
 
 ---
 
+## ✅ Hosted App Verification
+
+The live app at **https://flask-db-project.onrender.com** was verified on 31 August 2026.
+
+The following routes were tested and confirmed working:
+
+| Route | Result |
+|-------|--------|
+| `/` | Home page loads with navigation |
+| `/register` | Account creation form works |
+| `/login` | Login form authenticates correctly |
+| `/gallery` | Outfit cards display with search and category filter |
+| `/gallery?search=zulu` | Search filters results correctly |
+| `/add` | Add form shows category and image dropdowns; outfit saves |
+| `/edit/<id>` | Edit form pre-fills existing values; update persists |
+| `/delete/<id>` | Outfit removed and gallery reloads |
+| `/dispatch/<id>` | Stock quantity decremented correctly |
+| `/high-stock` | Shows outfits above average stock |
+| `/category-summary` | Displays per-category totals from SQL view |
+| `/categories` | Category management page lists existing categories |
+| `/about` | About page loads |
+| `/contact` | Contact page loads |
+
+The hosted appearance matches the local development version. The PostgreSQL
+database on Render is connected via the `DATABASE_URL` environment variable set
+in the Render dashboard — no credentials are stored in the repository.
+
+---
+
 ## 📁 Project Structure
 
 * `app.py` — Flask routes and application logic
