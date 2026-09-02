@@ -286,6 +286,28 @@ def test_category_summary_view_aggregates_outfits(test_client):
         assert row.total_stock == 7
 
 
+def test_high_stock_displays_overall_average_threshold(test_client):
+    for name, quantity, image_url in [
+        ('Low Stock Outfit', 10, 'high-stock-low.jpg'),
+        ('Average Stock Outfit', 20, 'high-stock-average.jpg'),
+        ('High Stock Outfit', 30, 'high-stock-high.jpg'),
+    ]:
+        test_client.post('/add', data={
+            'name': name,
+            'category': 'Women',
+            'image_url': image_url,
+            'quantity': str(quantity),
+            'price': '20',
+        })
+
+    response = test_client.get('/high-stock')
+
+    assert response.status_code == 200
+    assert b'Average Stock: 20.0' in response.data
+    assert b'High Stock Outfit' in response.data
+    assert b'Low Stock Outfit' not in response.data
+
+
 def test_api_rejects_invalid_values(test_client):
     response = test_client.post('/api/add-outfit', json={
         'name': 'Invalid Outfit',
