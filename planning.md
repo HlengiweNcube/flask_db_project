@@ -152,6 +152,9 @@ All pages extend `base.html`, which contains the `<head>`, navigation bar, and f
 ### Phase 4: Extended features
 - Added `/dispatch/<id>` for stock management
 - Added `/high-stock` reporting route
+- The high-stock page calculates the average across all outfits first, filters
+	items above that threshold, and displays the same overall average so the
+	result is easy to interpret.
 - Added `category_summary` SQL view and `/category-summary` route
 - Added category management interface with duplicate-name protection
 - Added image upload, rename, and delete management

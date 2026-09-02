@@ -79,7 +79,7 @@ This project documents and demonstrates:
 * Stock dispatch feature to subtract inventory quantity
 * Search and category filter
 * Sort gallery results alphabetically
-* Highlight above-average stock items
+* Highlight items whose stock is above the overall inventory average
 * Login protection for inventory management
 * Dedicated category management page with duplicate-name protection
 * Image management page for uploading, renaming, and removing unused images
@@ -94,7 +94,7 @@ This project documents and demonstrates:
 * `/edit/<id>` — Edit existing outfit
 * `/delete/<id>` — Delete outfit record
 * `/dispatch/<id>` — Dispatch stock quantity from an outfit
-* `/high-stock` — Show outfits with stock above average
+* `/high-stock` — Show outfits with stock above the overall inventory average; the displayed average is the threshold used for filtering
 * `/about` — Information page
 * `/contact` — Contact page
 * `/api/add-outfit` — JSON POST endpoint for outfit creation

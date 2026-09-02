@@ -297,7 +297,7 @@ The following HTML files have been created:
 
 - [x] Category creation/reuse automation
 - [x] Stock statistics (count, total, average, min, max)
-- [x] High-stock filtering (above average)
+- [x] High-stock filtering (above the overall inventory average, which is also displayed as the threshold)
 - [x] Search functionality
 - [x] Sort functionality
 - [x] API endpoint for programmatic access
