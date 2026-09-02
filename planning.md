@@ -43,9 +43,9 @@ The inventory is writable — adding, editing, and deleting outfits. Without aut
 
 Storing `category` as a plain string on each outfit would cause duplication and inconsistency — e.g. "Women", "women", and "WOMEN" would be treated as three different categories. A dedicated `Category` table with a unique constraint on `name` enforces consistency and allows the gallery filter to list categories accurately. The `get_or_create_category` helper normalises names to title case before inserting, so "women" and "Women" resolve to the same record.
 
-**Why enforce a `UNIQUE` constraint on `image_url`?**
+**Why prevent reuse of `image_url`?**
 
-Each outfit photo should represent a specific item. Allowing two outfits to share the same image would make the gallery misleading. The uniqueness constraint is enforced at the database level (not just in Python), so it holds even if data is inserted outside the application.
+Each outfit photo should represent a specific item. Allowing two outfits to share the same image would make the gallery misleading. The application checks for an existing `image_url` before creating or updating an outfit and returns a validation error when the image is already assigned. This is application-level validation; `image_url` is required but is not currently marked `UNIQUE` in the database model.
 
 **Why a `category_summary` SQL VIEW?**
 
@@ -75,7 +75,7 @@ The `/category-summary` route needs per-category totals (item count, total stock
 | id | Integer | Primary key |
 | name | String(100) | Required |
 | description | Text | Optional |
-| image_url | String(200) | Unique — one image per outfit |
+| image_url | String(200) | Required; reuse prevented by application validation |
 | quantity | Integer | Check: >= 0 |
 | price | Float | Check: >= 0 |
 | category_id | Integer | Foreign key → `categories.id` |

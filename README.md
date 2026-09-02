@@ -108,9 +108,10 @@ dispatching, deleting, and using the API require authentication.
 Authenticated users can manage categories and images from **Manage Categories
 and Images**. Images currently used by outfits cannot be deleted, and renaming
 an image updates its outfit references automatically.
-The same image can be shared by outfits in one category, but it cannot be
-assigned to outfits in different categories. This keeps category presentation
-consistent and prevents accidental cross-category image reuse.
+An image filename can only be assigned to one outfit. The add and edit routes
+check for an existing assignment and reject reuse, preventing accidental image
+duplication in the gallery. This is enforced by application validation rather
+than a database-level `UNIQUE` constraint.
 Outfit names may be reused for different garments, including garments in
 different categories. Each submission creates its own outfit record. Image
 filenames remain unique to one outfit so each record has its own picture.
