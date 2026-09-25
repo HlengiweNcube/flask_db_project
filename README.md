@@ -336,11 +336,17 @@ in `MOBILE_TEST_EVIDENCE.md`.
 
 * `app.py` — Flask routes and application logic
 * `models.py` — SQLAlchemy database models
-* `templates/` — HTML templates
+* `templates/` — HTML templates, including authentication and password recovery
 * `static/css/` — Stylesheets
 * `static/js/` — JavaScript code
+* `static/images/` — Bundled sample outfit images
 * `requirements.txt` — Python dependencies
+* `render.yaml` — Render web service and PostgreSQL configuration
 * `deployment.md` — Deployment and setup guide
+* `planning.md` — Design decisions and development history
+* `ASSIGNMENT_CHECKLIST.md` — Assignment requirements checklist
+* `SUBMISSION_GUIDE.md` — Submission and verification guide
+* `MOBILE_TEST_EVIDENCE.md` — Manual cellphone testing record
 * `test_app.py` — Automated pytest coverage
 
 ---
