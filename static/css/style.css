@@ -894,6 +894,16 @@ form textarea,
     font: inherit;
 }
 
+form input:focus-visible,
+form select:focus-visible,
+form textarea:focus-visible,
+button:focus-visible,
+a:focus-visible {
+    outline: 3px solid #005fcc;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px #ffbf47;
+}
+
 /* BUTTON STYLE */
 .btn-black {
     display: block;    
