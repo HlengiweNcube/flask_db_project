@@ -379,10 +379,28 @@ in `MOBILE_TEST_EVIDENCE.md`.
 
 ## 📚 Learning Outcomes
 
-* Flask + PostgreSQL integration
-* Relational database design
-* Full-stack web development
-* Deployment and environment configuration
+* Configure Flask-SQLAlchemy for both PostgreSQL production use and isolated
+  SQLite testing
+* Design a relational schema with four tables, unique constraints, check
+  constraints, a foreign key, and a one-to-many relationship
+* Create and query a database view for category-level reporting
+* Implement complete CRUD logic with separate routes for create, read, update,
+  delete, and stock dispatch operations
+* Use Flask route protection, password hashing, email registration, and secure
+  password recovery tokens
+* Validate form and JSON input on the server and handle invalid data safely
+* Integrate Jinja templates, responsive CSS, and optional JavaScript
+  enhancements using template inheritance and Flask static-file helpers
+* Store uploaded image bytes in the database so media persists across Render
+  redeployments
+* Organize configuration with environment variables instead of committed
+  credentials
+* Use pytest fixtures and an in-memory database to test routes and database
+  behavior repeatably
+* Deploy a Flask application with Gunicorn, Render, PostgreSQL, and automatic
+  GitHub deployment
+* Document design decisions, testing evidence, deployment steps, and mobile
+  verification for reproducible assessment
 
 ---
 
