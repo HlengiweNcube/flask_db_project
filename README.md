@@ -300,17 +300,27 @@ The following routes were tested and confirmed working:
 | Route | Result |
 |-------|--------|
 | `/` | Home page loads with navigation |
-| `/register` | Account creation form works |
+| `/register` | Account creation form accepts username, email, and password |
 | `/login` | Login form authenticates correctly |
 | `/gallery` | Outfit cards display with search and category filter |
 | `/gallery?search=zulu` | Search filters results correctly |
 | `/add` | Add form shows category and image dropdowns; outfit saves |
 | `/edit/<id>` | Edit form pre-fills existing values; update persists |
-| `/delete/<id>` | Outfit removed and gallery reloads |
-| `/dispatch/<id>` | Stock quantity decremented correctly |
+| `/delete/<id>` (POST) | Outfit is removed and gallery reloads |
+| `/dispatch/<id>` (POST) | Stock quantity is decremented correctly |
 | `/high-stock` | Shows outfits above average stock |
 | `/category-summary` | Displays per-category totals from SQL view |
-| `/categories` | Category management page lists existing categories |
+| `/categories` | Category management page lists and creates categories |
+| `/categories/<id>/edit` (POST) | Category name is updated |
+| `/categories/<id>/delete` (POST) | Unused category is removed |
+| `/images` (POST) | Uploaded image is stored in the database |
+| `/images/<filename>/rename` (POST) | Uploaded image is renamed and outfit references update |
+| `/images/<filename>/delete` (POST) | Unused uploaded image is removed |
+| `/media/<filename>` | Uploaded or bundled image is served |
+| `/api/add-outfit` (POST) | JSON request creates an outfit |
+| `/forgot-password` | Password reset request returns a safe response |
+| `/reset-password/<token>` | Valid token allows a new password |
+| `/logout` (POST) | Current session ends |
 | `/about` | About page loads |
 | `/contact` | Contact page loads |
 
