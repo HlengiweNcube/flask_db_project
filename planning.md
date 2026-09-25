@@ -166,7 +166,7 @@ All pages extend `base.html`, which contains the `<head>`, navigation bar, and f
 ### Phase 6: Testing
 - Added `test_app.py` with pytest covering all major routes and database operations
 - Used SQLite in-memory database for tests (no PostgreSQL required)
-- 22 tests covering: auth, CRUD, validation, category management, API, and reporting
+- 23 tests covering: auth, CRUD, validation, category management, API, and reporting
 
 ### Phase 7: Deployment
 - Deployed to Render.com with PostgreSQL add-on
