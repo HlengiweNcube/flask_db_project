@@ -79,6 +79,29 @@ Bundled sample images are read from `static/images/`. Uploaded images are
 stored in `uploaded_images` and served through `/media/<filename>`, so they
 survive Render redeploys.
 
+### Database View: `category_summary`
+
+The application also creates a SQL view named `category_summary`. It joins
+`categories` to `outfits` and calculates the number of outfits and total stock
+for each category:
+
+```sql
+CREATE VIEW category_summary AS
+SELECT c.id AS category_id,
+       c.name AS category_name,
+       COUNT(o.id) AS total_items,
+       COALESCE(SUM(o.quantity), 0) AS total_stock
+FROM categories c
+LEFT JOIN outfits o ON o.category_id = c.id
+GROUP BY c.id, c.name;
+```
+
+`ensure_category_summary_view()` recreates the view when the application starts,
+so a new SQLite or PostgreSQL database has the reporting structure before any
+request uses it. The `/category-summary` route reads this view and renders the
+results in `category_summary.html`. The behavior is covered by
+`test_category_summary_view_aggregates_outfits` in `test_app.py`.
+
 ---
 
 ## 🚀 Application Features
@@ -107,6 +130,7 @@ survive Render redeploys.
 * `/delete/<id>` — Delete outfit record
 * `/dispatch/<id>` — Dispatch stock quantity from an outfit
 * `/high-stock` — Show outfits with stock above the overall inventory average; the displayed average is the threshold used for filtering
+* `/category-summary` — Display category totals from the SQL reporting view
 * `/about` — Information page
 * `/contact` — Contact page
 * `/api/add-outfit` — JSON POST endpoint for outfit creation
