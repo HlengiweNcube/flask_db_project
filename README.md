@@ -353,13 +353,27 @@ in `MOBILE_TEST_EVIDENCE.md`.
 
 ## 📚 Improvements Made
 
-* Added `Category` model usage and foreign key relationships
-* Added edit/update route for outfits
-* Improved gallery filters and category joins
-* Added README documentation and deployment instructions
-* Added local testing guidance and route documentation
-* Added `deployment.md` for deployment evidence and setup
-* Added automated `pytest` tests
+* Added a relational schema with `User`, `Category`, `Outfit`, and
+  `UploadedImage` tables
+* Added a foreign-key relationship between `Category` and `Outfit` using
+  Flask-SQLAlchemy relationships
+* Implemented complete outfit CRUD operations, including the edit/update route
+* Added category creation, reuse, editing, and protected deletion
+* Added the `category_summary` SQL view and reporting route
+* Added search, category filtering, alphabetical sorting, stock dispatch, and
+  high-stock reporting
+* Added database-backed image upload, rename, delete, and media serving for
+  persistent Render storage
+* Added username/email registration, login protection, and password recovery
+* Added a repeatable `seed-db` command for manual route demonstrations
+* Added server-side validation, password hashing, secure filenames, and
+  environment-based configuration
+* Added responsive CSS, JavaScript enhancements, and high-contrast keyboard
+  focus indicators
+* Added README documentation, route explanations, deployment instructions, and
+  design-decision notes
+* Added SQLite test setup with 29 automated pytest tests
+* Added cellphone verification evidence and hosted-app verification guidance
 
 ---
 
