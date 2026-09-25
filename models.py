@@ -61,3 +61,21 @@ class Outfit(db.Model):
 
     def __repr__(self):
         return f"<Outfit {self.name}>"
+
+
+class UploadedImage(db.Model):
+    """A user-uploaded outfit image stored in the database.
+
+    Render's free web service has no persistent disk, so files saved to
+    the local filesystem are lost on every redeploy. Storing the image
+    bytes in the database keeps uploads available across deploys.
+    """
+    __tablename__ = 'uploaded_images'
+
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(200), nullable=False, unique=True)
+    mimetype = db.Column(db.String(100), nullable=False)
+    data = db.Column(db.LargeBinary, nullable=False)
+
+    def __repr__(self):
+        return f"<UploadedImage {self.filename}>"

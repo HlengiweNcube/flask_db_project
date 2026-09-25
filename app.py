@@ -1,10 +1,14 @@
-from flask import Flask, abort, jsonify, render_template, request, redirect, url_for
+from flask import Flask, Response, abort, jsonify, render_template, request, redirect, send_from_directory, url_for
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from models import db, Outfit, Category, User
+from models import db, Outfit, Category, UploadedImage, User
 from sqlalchemy import func, select, text
+import mimetypes
 import os
+
+# Reused wherever an uploaded or bundled image filename is validated.
+ALLOWED_IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'local-development-change-me')
@@ -126,14 +130,29 @@ def get_category_options():
     return sorted(existing_names.union(DEFAULT_CATEGORIES))
 
 
-def get_image_choices():
-    """Return selectable image filenames available to the application."""
+def get_static_image_names():
+    """Return filenames bundled with the app in static/images.
+
+    These ship with the Git repository, so they survive Render redeploys
+    even though the filesystem itself is not persistent.
+    """
     image_directory = os.path.join(app.static_folder, 'images')
-    allowed_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
     return sorted(
         filename for filename in os.listdir(image_directory)
-        if os.path.splitext(filename)[1].lower() in allowed_extensions
+        if os.path.splitext(filename)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
     )
+
+
+def get_uploaded_image_names():
+    """Return filenames uploaded via the app and stored in the database."""
+    return db.session.scalars(
+        select(UploadedImage.filename).order_by(UploadedImage.filename)
+    ).all()
+
+
+def get_image_choices():
+    """Return every selectable image filename, bundled and uploaded."""
+    return sorted(set(get_static_image_names()) | set(get_uploaded_image_names()))
 
 
 def image_outfit_conflict(image_name, outfit_id=None):
@@ -225,6 +244,7 @@ def categories():
         'categories.html',
         categories=get_category_choices(),
         images=get_image_choices(),
+        uploaded_images=set(get_uploaded_image_names()),
         error=request.args.get('error')
     )
 
@@ -261,34 +281,54 @@ def delete_category(id):
     return redirect(url_for('categories'))
 
 
+@app.get('/media/<path:filename>')
+def media(filename):
+    """Serve an outfit image from the database, falling back to static/images.
+
+    Uploaded images live in the database (see UploadedImage) so they survive
+    Render redeploys, which reset the filesystem. Bundled sample images
+    shipped with the repository are still served straight from disk.
+    """
+    uploaded = db.session.scalar(select(UploadedImage).where(UploadedImage.filename == filename))
+    if uploaded:
+        return Response(uploaded.data, mimetype=uploaded.mimetype)
+    return send_from_directory(os.path.join(app.static_folder, 'images'), filename)
+
+
 @app.post('/images')
 @login_required
 def upload_image():
-    """Upload a supported image into the application's static image folder."""
+    """Upload a supported image into the database so it survives redeploys."""
     image = request.files.get('image')
     filename = secure_filename(image.filename) if image else ''
-    allowed_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
-    if not filename or os.path.splitext(filename)[1].lower() not in allowed_extensions:
+    extension = os.path.splitext(filename)[1].lower()
+    if not filename or extension not in ALLOWED_IMAGE_EXTENSIONS:
         return redirect(url_for('categories', error='Choose a JPG, PNG, GIF, or WEBP image.'))
-    image.save(os.path.join(app.static_folder, 'images', filename))
+    if filename in get_image_choices():
+        return redirect(url_for('categories', error='That filename is already in use. Choose a different name.'))
+
+    mimetype = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+    db.session.add(UploadedImage(filename=filename, mimetype=mimetype, data=image.read()))
+    db.session.commit()
     return redirect(url_for('categories'))
 
 
 @app.post('/images/<path:filename>/rename')
 @login_required
 def rename_image(filename):
-    """Rename an image and update outfit records that reference it."""
-    image_directory = os.path.join(app.static_folder, 'images')
+    """Rename an uploaded image and update outfit records that reference it."""
     old_name = secure_filename(filename)
     new_name = secure_filename(request.form.get('name', ''))
-    allowed_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
-    if not new_name or os.path.splitext(new_name)[1].lower() not in allowed_extensions:
+    if not new_name or os.path.splitext(new_name)[1].lower() not in ALLOWED_IMAGE_EXTENSIONS:
         return redirect(url_for('categories', error='Use a valid image filename.'))
-    old_path = os.path.join(image_directory, old_name)
-    new_path = os.path.join(image_directory, new_name)
-    if not os.path.isfile(old_path) or os.path.exists(new_path):
-        return redirect(url_for('categories', error='The image cannot be renamed.'))
-    os.rename(old_path, new_path)
+
+    uploaded = db.session.scalar(select(UploadedImage).where(UploadedImage.filename == old_name))
+    if not uploaded:
+        return redirect(url_for('categories', error='Only uploaded images can be renamed. Built-in sample images are read-only.'))
+    if new_name != old_name and new_name in get_image_choices():
+        return redirect(url_for('categories', error='That filename is already in use. Choose a different name.'))
+
+    uploaded.filename = new_name
     db.session.query(Outfit).filter_by(image_url=old_name).update({'image_url': new_name})
     db.session.commit()
     return redirect(url_for('categories'))
@@ -297,13 +337,17 @@ def rename_image(filename):
 @app.post('/images/<path:filename>/delete')
 @login_required
 def delete_image(filename):
-    """Delete an unused image so outfit records never point to missing files."""
+    """Delete an unused uploaded image so outfit records never point to missing files."""
     image_name = secure_filename(filename)
     if db.session.scalar(select(Outfit.id).where(Outfit.image_url == image_name)):
         return redirect(url_for('categories', error='This image is used by an outfit and cannot be deleted.'))
-    image_path = os.path.join(app.static_folder, 'images', image_name)
-    if os.path.isfile(image_path):
-        os.remove(image_path)
+
+    uploaded = db.session.scalar(select(UploadedImage).where(UploadedImage.filename == image_name))
+    if not uploaded:
+        return redirect(url_for('categories', error='Only uploaded images can be deleted. Built-in sample images are read-only.'))
+
+    db.session.delete(uploaded)
+    db.session.commit()
     return redirect(url_for('categories'))
 
 

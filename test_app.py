@@ -351,3 +351,66 @@ def test_delete_removes_outfit(test_client):
 
     with app.app_context():
         assert db.session.get(Outfit, outfit_id) is None
+
+
+def test_uploaded_image_is_stored_in_database_and_served(test_client):
+    from io import BytesIO
+
+    response = test_client.post(
+        '/images',
+        data={'image': (BytesIO(b'fake-image-bytes'), 'sample-upload.jpg')},
+        content_type='multipart/form-data',
+        follow_redirects=True,
+    )
+
+    assert response.status_code == 200
+    assert b'sample-upload.jpg' in response.data
+
+    with app.app_context():
+        from models import UploadedImage
+        stored = db.session.scalar(select(UploadedImage).where(UploadedImage.filename == 'sample-upload.jpg'))
+        assert stored is not None
+        assert stored.data == b'fake-image-bytes'
+
+    media_response = test_client.get('/media/sample-upload.jpg')
+    assert media_response.status_code == 200
+    assert media_response.data == b'fake-image-bytes'
+
+
+def test_uploaded_image_can_be_renamed_and_deleted(test_client):
+    from io import BytesIO
+
+    test_client.post(
+        '/images',
+        data={'image': (BytesIO(b'fake-image-bytes'), 'rename-me.jpg')},
+        content_type='multipart/form-data',
+    )
+
+    response = test_client.post('/images/rename-me.jpg/rename', data={'name': 'renamed.jpg'})
+    assert response.status_code == 302
+
+    with app.app_context():
+        from models import UploadedImage
+        assert db.session.scalar(select(UploadedImage).where(UploadedImage.filename == 'renamed.jpg')) is not None
+        assert db.session.scalar(select(UploadedImage).where(UploadedImage.filename == 'rename-me.jpg')) is None
+
+    response = test_client.post('/images/renamed.jpg/delete')
+    assert response.status_code == 302
+
+    with app.app_context():
+        from models import UploadedImage
+        assert db.session.scalar(select(UploadedImage).where(UploadedImage.filename == 'renamed.jpg')) is None
+
+
+def test_builtin_image_cannot_be_renamed_or_deleted(test_client):
+    response = test_client.post('/images/lobola.jpg/rename', data={'name': 'lobola-new.jpg'})
+    assert response.status_code == 302
+    assert response.headers['Location'].endswith(
+        '/categories?error=Only+uploaded+images+can+be+renamed.+Built-in+sample+images+are+read-only.'
+    )
+
+    response = test_client.post('/images/lobola.jpg/delete')
+    assert response.status_code == 302
+    assert response.headers['Location'].endswith(
+        '/categories?error=Only+uploaded+images+can+be+deleted.+Built-in+sample+images+are+read-only.'
+    )

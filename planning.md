@@ -51,6 +51,10 @@ Each outfit photo should represent a specific item. Allowing two outfits to shar
 
 The `/category-summary` route needs per-category totals (item count, total stock). This could be computed in Python, but a SQL `VIEW` pushes the aggregation into the database where it runs efficiently with a single query. It also demonstrates use of raw SQL alongside the ORM.
 
+**Why store uploaded images in the database instead of the filesystem?**
+
+Render's free web service has no persistent disk — every redeploy resets the container's filesystem. Early versions of this app saved uploaded images with `image.save()` to `static/images/`, which meant any image uploaded through the live app disappeared the next time a commit was pushed and Render auto-deployed. The `UploadedImage` model now stores the raw bytes and MIME type in PostgreSQL, and a `/media/<filename>` route serves the image from the database if it exists there, falling back to the bundled sample images shipped in `static/images/` (which are safe because they live in Git, not on the ephemeral disk). Bundled images are treated as read-only in the UI; only database-backed uploads can be renamed or deleted.
+
 ### Tables
 
 **User**
@@ -166,7 +170,7 @@ All pages extend `base.html`, which contains the `<head>`, navigation bar, and f
 ### Phase 6: Testing
 - Added `test_app.py` with pytest covering all major routes and database operations
 - Used SQLite in-memory database for tests (no PostgreSQL required)
-- 23 tests covering: auth, CRUD, validation, category management, API, and reporting
+- 26 tests covering: auth, CRUD, validation, category management, database-backed image upload/rename/delete, API, and reporting
 
 ### Phase 7: Deployment
 - Deployed to Render.com with PostgreSQL add-on

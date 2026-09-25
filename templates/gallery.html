@@ -73,7 +73,7 @@
         {% for outfit in outfits %}
         <div class="card" data-category="{{ outfit.category_name }}">
 
-            <img src="{{ url_for('static', filename='images/' + outfit.image_url) }}" alt="{{ outfit.name }}">
+            <img src="{{ url_for('media', filename=outfit.image_url) }}" alt="{{ outfit.name }}">
 
             <h3>{{ outfit.name }}</h3>
             <p><strong>Category:</strong> {{ outfit.category_name }}</p>

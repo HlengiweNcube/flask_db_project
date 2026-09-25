@@ -56,11 +56,11 @@
 
     <div class="subsection">
         <h3>Manage an existing image</h3>
-        <p class="subsection-hint">Rename or delete an image already in the library. Uploading is not required first.</p>
+        <p class="subsection-hint">Rename or delete an uploaded image. Built-in sample images are read-only and cannot be renamed or deleted.</p>
         <label for="image-management-select">Select an image to manage:</label>
         <select id="image-management-select" onchange="updateImageActions(this)"{% if not images %} disabled{% endif %}>
             {% for image in images %}
-                <option value="{{ image }}">{{ image }}</option>
+                <option value="{{ image }}">{{ image }}{% if image not in uploaded_images %} (built-in, read-only){% endif %}</option>
             {% else %}
                 <option>No images have been uploaded yet.</option>
             {% endfor %}

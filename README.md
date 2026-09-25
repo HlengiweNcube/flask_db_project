@@ -116,6 +116,15 @@ Outfit names may be reused for different garments, including garments in
 different categories. Each submission creates its own outfit record. Image
 filenames remain unique to one outfit so each record has its own picture.
 
+**Uploaded images are stored in the database, not on disk.** Render's free web
+service has no persistent disk, so files saved to the filesystem are wiped on
+every redeploy. The `UploadedImage` model stores the image bytes and MIME type
+in PostgreSQL, and the `/media/<filename>` route serves either an uploaded
+database image or one of the bundled sample images in `static/images/`
+(which ship with the Git repo and are always available). Bundled sample
+images are read-only in the UI — only uploaded images can be renamed or
+deleted.
+
 ---
 
 ## 💡 Design and Implementation Notes
