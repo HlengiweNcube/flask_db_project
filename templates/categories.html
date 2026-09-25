@@ -41,30 +41,40 @@
 
 <section class="management-section">
     <div class="section-heading"><h2>Images</h2><span>{{ images|length }} available</span></div>
-    <form method="POST" action="{{ url_for('upload_image') }}" enctype="multipart/form-data" class="add-resource-form">
-        <label for="image">Upload a new image:</label>
-        <div class="resource-input-row">
-            <input id="image" type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp" required>
-            <button type="submit" class="btn-black">Upload image</button>
+
+    <div class="subsection">
+        <h3>Upload a new image</h3>
+        <p class="subsection-hint">Adds a new file to the image library. This does not affect existing images.</p>
+        <form method="POST" action="{{ url_for('upload_image') }}" enctype="multipart/form-data" class="add-resource-form">
+            <label for="image">Choose an image file:</label>
+            <div class="resource-input-row">
+                <input id="image" type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp" required>
+                <button type="submit" class="btn-black">Upload image</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="subsection">
+        <h3>Manage an existing image</h3>
+        <p class="subsection-hint">Rename or delete an image already in the library. Uploading is not required first.</p>
+        <label for="image-management-select">Select an image to manage:</label>
+        <select id="image-management-select" onchange="updateImageActions(this)"{% if not images %} disabled{% endif %}>
+            {% for image in images %}
+                <option value="{{ image }}">{{ image }}</option>
+            {% else %}
+                <option>No images have been uploaded yet.</option>
+            {% endfor %}
+        </select>
+        <div class="management-actions image-actions">
+            <form id="rename-image-form" method="POST" action="{% if images %}{{ url_for('rename_image', filename=images[0]) }}{% endif %}">
+                <input id="rename-image-name" type="text" name="name" value="{% if images %}{{ images[0] }}{% endif %}" required{% if not images %} disabled{% endif %}>
+                <button type="submit"{% if not images %} disabled{% endif %}>Rename</button>
+            </form>
+            <form id="delete-image-form" method="POST" action="{% if images %}{{ url_for('delete_image', filename=images[0]) }}{% endif %}">
+                <button type="submit"{% if not images %} disabled{% endif %}>Delete selected image</button>
+            </form>
         </div>
-    </form>
-    <label for="image-management-select">Select an image to manage:</label>
-<select id="image-management-select" onchange="updateImageActions(this)"{% if not images %} disabled{% endif %}>
-    {% for image in images %}
-        <option value="{{ image }}">{{ image }}</option>
-    {% else %}
-        <option>No images have been uploaded yet.</option>
-    {% endfor %}
-</select>
-<div class="management-actions image-actions">
-    <form id="rename-image-form" method="POST" action="{% if images %}{{ url_for('rename_image', filename=images[0]) }}{% endif %}">
-        <input id="rename-image-name" type="text" name="name" value="{% if images %}{{ images[0] }}{% endif %}" required{% if not images %} disabled{% endif %}>
-        <button type="submit"{% if not images %} disabled{% endif %}>Rename</button>
-    </form>
-    <form id="delete-image-form" method="POST" action="{% if images %}{{ url_for('delete_image', filename=images[0]) }}{% endif %}">
-        <button type="submit"{% if not images %} disabled{% endif %}>Delete selected image</button>
-    </form>
-</div>
+    </div>
 </section>
 </section>
 {% endblock %}

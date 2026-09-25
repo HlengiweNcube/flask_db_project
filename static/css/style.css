@@ -813,6 +813,28 @@ main {
     margin-bottom: 22px;
 }
 
+.subsection {
+    border-top: 1px dashed #ded6ca;
+    margin-top: 20px;
+    padding-top: 20px;
+}
+
+.subsection:first-of-type {
+    border-top: none;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.subsection h3 {
+    margin: 0 0 4px;
+}
+
+.subsection-hint {
+    color: #756d64;
+    font-size: 0.85rem;
+    margin: 0 0 12px;
+}
+
 .resource-input-row {
     align-items: center;
     display: flex;
