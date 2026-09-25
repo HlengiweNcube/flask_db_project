@@ -43,6 +43,8 @@ The following HTML files have been created:
 9. [x] `register.html` - Registration form (extends base.html)
 10. [x] `about.html` - About page (extends base.html)
 11. [x] `contact.html` - Contact page (extends base.html)
+12. [x] `forgot_password.html` - Password reset request form (extends base.html)
+13. [x] `reset_password.html` - New password form (extends base.html)
 
 **Requirements Met**:
 - [x] At least 5 HTML files created
