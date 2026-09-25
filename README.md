@@ -293,7 +293,8 @@ The following routes were tested and confirmed working:
 The PostgreSQL database on Render is connected via the `DATABASE_URL`
 environment variable set in the Render dashboard; no credentials are stored in
 the repository. Compare the hosted page at desktop and mobile widths with the
-local page after deployment.
+local page after deployment. The cellphone verification record is documented
+in `MOBILE_TEST_EVIDENCE.md`.
 
 ---
 

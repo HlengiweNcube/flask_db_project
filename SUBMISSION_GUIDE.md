@@ -49,6 +49,7 @@ flask_db_project/
 ├── render.yaml              # Render service, database, and auto-deploy config
 ├── README.md                # Project documentation
 ├── deployment.md            # Render.com deployment guide
+├── MOBILE_TEST_EVIDENCE.md  # Manual cellphone verification record
 ├── ASSIGNMENT_CHECKLIST.md  # Complete requirements verification
 ├── .gitignore              # Git configuration
 ├── templates/              # Jinja2 HTML templates

@@ -174,6 +174,7 @@ gallery, add an outfit, confirm its category appears in the category counts,
 edit it, dispatch stock, and delete it. Also test `/gallery?search=shirt` and
 `/high-stock`. Compare the hosted pages with the local version at desktop and
 mobile widths and keep screenshots or a short test log as submission evidence.
+The current cellphone test record is stored in `MOBILE_TEST_EVIDENCE.md`.
 
 ---
 
