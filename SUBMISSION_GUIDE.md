@@ -259,7 +259,7 @@ pytest test_app.py -v
 
 - **Total Routes**: 19 route rules (exceeds requirements)
 - **HTML Templates**: 11 (exceeds 5 minimum)
-- **Database Tables**: 3 (User, Category, Outfit)
+- **Database Tables**: 4 (User, Category, Outfit, UploadedImage)
 - **CRUD Operations**: 5 (Create, Read, Update, Delete, Dispatch)
 - **Tests Passing**: 26/26 (100%)
 - **JavaScript Features**: 5+ (filtering, validation, carousel, etc.)

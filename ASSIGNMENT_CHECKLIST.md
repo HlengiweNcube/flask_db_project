@@ -166,6 +166,9 @@ The following HTML files have been created:
   - quantity (with check constraint)
   - price (with check constraint)
   - category_id (Foreign Key)
+- [x] `User` table for authentication (username, hashed password)
+- [x] `UploadedImage` table storing uploaded image bytes and MIME type in the
+  database so files survive Render redeploys (no persistent disk on the free tier)
 
 ### Database Relationships
 

@@ -1,0 +1,34 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.13.1, pytest-8.4.2, pluggy-1.6.0 -- C:\Users\hlehl\Desktop\flask_db_project\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\hlehl\Desktop\flask_db_project
+collecting ... collected 26 items
+
+test_app.py::test_home_page PASSED                                       [  3%]
+test_app.py::test_about_page PASSED                                      [  7%]
+test_app.py::test_inventory_requires_login PASSED                        [ 11%]
+test_app.py::test_login_explains_when_account_does_not_exist PASSED      [ 15%]
+test_app.py::test_add_form_shows_category_dropdown PASSED                [ 19%]
+test_app.py::test_add_form_shows_image_dropdown PASSED                   [ 23%]
+test_app.py::test_add_form_explains_outfit_name PASSED                   [ 26%]
+test_app.py::test_authenticated_user_can_add_category PASSED             [ 30%]
+test_app.py::test_category_page_rejects_duplicate_names PASSED           [ 34%]
+test_app.py::test_category_can_be_renamed_and_unused_category_deleted PASSED [ 38%]
+test_app.py::test_category_used_by_outfit_cannot_be_deleted PASSED       [ 42%]
+test_app.py::test_same_image_cannot_be_used_by_different_outfits PASSED  [ 46%]
+test_app.py::test_same_outfit_name_is_allowed_across_categories PASSED   [ 50%]
+test_app.py::test_category_page_uses_image_dropdown PASSED               [ 53%]
+test_app.py::test_add_rejects_empty_required_fields PASSED               [ 57%]
+test_app.py::test_add_outfit PASSED                                      [ 61%]
+test_app.py::test_edit_outfit PASSED                                     [ 65%]
+test_app.py::test_category_is_reused_when_outfits_are_added PASSED       [ 69%]
+test_app.py::test_category_summary_view_aggregates_outfits PASSED        [ 73%]
+test_app.py::test_high_stock_displays_overall_average_threshold PASSED   [ 76%]
+test_app.py::test_api_rejects_invalid_values PASSED                      [ 80%]
+test_app.py::test_dispatch_reduces_stock PASSED                          [ 84%]
+test_app.py::test_delete_removes_outfit PASSED                           [ 88%]
+test_app.py::test_uploaded_image_is_stored_in_database_and_served PASSED [ 92%]
+test_app.py::test_uploaded_image_can_be_renamed_and_deleted PASSED       [ 96%]
+test_app.py::test_builtin_image_cannot_be_renamed_or_deleted PASSED      [100%]
+
+============================= 26 passed in 6.94s ==============================
