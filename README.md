@@ -44,6 +44,7 @@ This project documents and demonstrates:
 
 * `id` — Primary key
 * `username` — Required and unique login name
+* `email` — Required and unique email address used for password recovery
 * `password_hash` — Securely hashed password; the plain password is never stored
 
 **Category**
@@ -99,7 +100,9 @@ This project documents and demonstrates:
 * `/contact` — Contact page
 * `/api/add-outfit` — JSON POST endpoint for outfit creation
 * `/login` — Authenticate an inventory user
-* `/register` — Create an account
+* `/register` — Create an account with a username, email address, and password
+* `/forgot-password` — Request an expiring password reset link by email
+* `/reset-password/<token>` — Set a new password using a valid reset link
 * `/logout` — End the current session
 * `/categories` — View and add reusable categories
 
@@ -138,6 +141,11 @@ deleted.
 * Server-side validation ensures required fields and non-negative inventory values
 * The JSON API uses the same validation helper as the HTML form
 * Flask-Login protects inventory-changing routes and stores only password hashes
+
+Password reset email delivery uses SMTP. Configure `SMTP_HOST`, `SMTP_PORT`,
+`SMTP_USERNAME`, `SMTP_PASSWORD`, and `SMTP_FROM` in the deployment environment.
+Reset links expire after one hour, and the reset request page uses the same
+message whether or not an account exists for the submitted address.
 
 ---
 

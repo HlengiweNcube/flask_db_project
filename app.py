@@ -1,29 +1,24 @@
-from flask import Flask, Response, abort, jsonify, render_template, request, redirect, send_from_directory, url_for
+from email.message import EmailMessage
+import smtplib
+
+from flask import Flask, abort, jsonify, render_template, request, redirect, url_for
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from models import db, Outfit, Category, UploadedImage, User
-from sqlalchemy import func, select, text
-import mimetypes
+from models import db, Outfit, Category, User
+from sqlalchemy import func, inspect, select, text
 import os
-
-# Reused wherever an uploaded or bundled image filename is validated.
-ALLOWED_IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'local-development-change-me')
 
-# Read the database URL from the environment so credentials are never stored in code.
-# Falls back to a local SQLite file when DATABASE_URL is not set (e.g. during development).
 uri = os.environ.get("DATABASE_URL", "sqlite:///local_test.db")
 
-# Render.com supplies the connection string with the legacy "postgres://" prefix.
-# SQLAlchemy 1.4+ requires "postgresql://", so the prefix is corrected here at runtime.
 if uri.startswith("postgres://"):
     uri = uri.replace("postgres://", "postgresql://", 1)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = uri
-# Disable modification tracking — it is unused and adds memory overhead.
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
@@ -33,7 +28,18 @@ def initialize_database():
     """Create any missing tables when a new local or hosted database starts."""
     with app.app_context():
         db.create_all()
+        ensure_user_email_column()
         ensure_category_summary_view()
+
+
+def ensure_user_email_column():
+    """Add the email column for databases created before email registration."""
+    inspector = inspect(db.engine)
+    if 'users' not in inspector.get_table_names():
+        return
+    if 'email' not in {column['name'] for column in inspector.get_columns('users')}:
+        db.session.execute(text('ALTER TABLE users ADD COLUMN email VARCHAR(255)'))
+        db.session.commit()
 
 
 def ensure_category_summary_view():
@@ -51,12 +57,41 @@ def ensure_category_summary_view():
 
 initialize_database()
 
+RESET_TOKEN_MAX_AGE = 3600
+
 DEFAULT_CATEGORIES = ('Women', 'Men', 'Children', 'Accessories', 'Traditional')
 
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.login_message = 'Please log in to manage the inventory.'
 login_manager.init_app(app)
+
+
+def reset_token_serializer():
+    return URLSafeTimedSerializer(app.config['SECRET_KEY'], salt='password-reset')
+
+
+def send_password_reset_email(user, reset_url):
+    """Send a reset link through the SMTP server configured by the deployment."""
+    smtp_host = os.environ.get('SMTP_HOST')
+    if not smtp_host:
+        app.logger.warning('SMTP_HOST is not configured; password reset email was not sent.')
+        return False
+
+    message = EmailMessage()
+    message['Subject'] = 'Reset your African Fashion password'
+    message['From'] = os.environ.get('SMTP_FROM', 'no-reply@african-fashion.local')
+    message['To'] = user.email
+    message.set_content(
+        'Use this link within one hour to choose a new password:\n\n'
+        f'{reset_url}\n\nIf you did not request this, you can ignore this email.'
+    )
+
+    with smtplib.SMTP(smtp_host, int(os.environ.get('SMTP_PORT', '587'))) as smtp:
+        smtp.starttls()
+        smtp.login(os.environ['SMTP_USERNAME'], os.environ['SMTP_PASSWORD'])
+        smtp.send_message(message)
+    return True
 
 
 @login_manager.user_loader
@@ -130,29 +165,14 @@ def get_category_options():
     return sorted(existing_names.union(DEFAULT_CATEGORIES))
 
 
-def get_static_image_names():
-    """Return filenames bundled with the app in static/images.
-
-    These ship with the Git repository, so they survive Render redeploys
-    even though the filesystem itself is not persistent.
-    """
+def get_image_choices():
+    """Return selectable image filenames available to the application."""
     image_directory = os.path.join(app.static_folder, 'images')
+    allowed_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
     return sorted(
         filename for filename in os.listdir(image_directory)
-        if os.path.splitext(filename)[1].lower() in ALLOWED_IMAGE_EXTENSIONS
+        if os.path.splitext(filename)[1].lower() in allowed_extensions
     )
-
-
-def get_uploaded_image_names():
-    """Return filenames uploaded via the app and stored in the database."""
-    return db.session.scalars(
-        select(UploadedImage.filename).order_by(UploadedImage.filename)
-    ).all()
-
-
-def get_image_choices():
-    """Return every selectable image filename, bundled and uploaded."""
-    return sorted(set(get_static_image_names()) | set(get_uploaded_image_names()))
 
 
 def image_outfit_conflict(image_name, outfit_id=None):
@@ -210,13 +230,16 @@ def register():
 
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip().lower()
         password = request.form.get('password', '')
-        if not username or len(password) < 8:
-            return render_template('register.html', error='Username is required and password must be at least 8 characters.'), 400
+        if not username or not email or '@' not in email or len(password) < 8:
+            return render_template('register.html', error='Username and a valid email are required, and password must be at least 8 characters.'), 400
         if db.session.scalar(select(User).where(User.username == username)):
-            return render_template('register.html', error='That username is already registered.'), 400
+            return render_template('register.html', email=email, error='That username is already registered.'), 400
+        if db.session.scalar(select(User).where(User.email == email)):
+            return render_template('register.html', username=username, error='That email address is already registered.'), 400
 
-        user = User(username=username, password_hash=generate_password_hash(password))
+        user = User(username=username, email=email, password_hash=generate_password_hash(password))
         db.session.add(user)
         db.session.commit()
         login_user(user)
@@ -244,7 +267,6 @@ def categories():
         'categories.html',
         categories=get_category_choices(),
         images=get_image_choices(),
-        uploaded_images=set(get_uploaded_image_names()),
         error=request.args.get('error')
     )
 
@@ -281,54 +303,34 @@ def delete_category(id):
     return redirect(url_for('categories'))
 
 
-@app.get('/media/<path:filename>')
-def media(filename):
-    """Serve an outfit image from the database, falling back to static/images.
-
-    Uploaded images live in the database (see UploadedImage) so they survive
-    Render redeploys, which reset the filesystem. Bundled sample images
-    shipped with the repository are still served straight from disk.
-    """
-    uploaded = db.session.scalar(select(UploadedImage).where(UploadedImage.filename == filename))
-    if uploaded:
-        return Response(uploaded.data, mimetype=uploaded.mimetype)
-    return send_from_directory(os.path.join(app.static_folder, 'images'), filename)
-
-
 @app.post('/images')
 @login_required
 def upload_image():
-    """Upload a supported image into the database so it survives redeploys."""
+    """Upload a supported image into the application's static image folder."""
     image = request.files.get('image')
     filename = secure_filename(image.filename) if image else ''
-    extension = os.path.splitext(filename)[1].lower()
-    if not filename or extension not in ALLOWED_IMAGE_EXTENSIONS:
+    allowed_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+    if not filename or os.path.splitext(filename)[1].lower() not in allowed_extensions:
         return redirect(url_for('categories', error='Choose a JPG, PNG, GIF, or WEBP image.'))
-    if filename in get_image_choices():
-        return redirect(url_for('categories', error='That filename is already in use. Choose a different name.'))
-
-    mimetype = mimetypes.guess_type(filename)[0] or 'application/octet-stream'
-    db.session.add(UploadedImage(filename=filename, mimetype=mimetype, data=image.read()))
-    db.session.commit()
+    image.save(os.path.join(app.static_folder, 'images', filename))
     return redirect(url_for('categories'))
 
 
 @app.post('/images/<path:filename>/rename')
 @login_required
 def rename_image(filename):
-    """Rename an uploaded image and update outfit records that reference it."""
+    """Rename an image and update outfit records that reference it."""
+    image_directory = os.path.join(app.static_folder, 'images')
     old_name = secure_filename(filename)
     new_name = secure_filename(request.form.get('name', ''))
-    if not new_name or os.path.splitext(new_name)[1].lower() not in ALLOWED_IMAGE_EXTENSIONS:
+    allowed_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.webp'}
+    if not new_name or os.path.splitext(new_name)[1].lower() not in allowed_extensions:
         return redirect(url_for('categories', error='Use a valid image filename.'))
-
-    uploaded = db.session.scalar(select(UploadedImage).where(UploadedImage.filename == old_name))
-    if not uploaded:
-        return redirect(url_for('categories', error='Only uploaded images can be renamed. Built-in sample images are read-only.'))
-    if new_name != old_name and new_name in get_image_choices():
-        return redirect(url_for('categories', error='That filename is already in use. Choose a different name.'))
-
-    uploaded.filename = new_name
+    old_path = os.path.join(image_directory, old_name)
+    new_path = os.path.join(image_directory, new_name)
+    if not os.path.isfile(old_path) or os.path.exists(new_path):
+        return redirect(url_for('categories', error='The image cannot be renamed.'))
+    os.rename(old_path, new_path)
     db.session.query(Outfit).filter_by(image_url=old_name).update({'image_url': new_name})
     db.session.commit()
     return redirect(url_for('categories'))
@@ -337,17 +339,13 @@ def rename_image(filename):
 @app.post('/images/<path:filename>/delete')
 @login_required
 def delete_image(filename):
-    """Delete an unused uploaded image so outfit records never point to missing files."""
+    """Delete an unused image so outfit records never point to missing files."""
     image_name = secure_filename(filename)
     if db.session.scalar(select(Outfit.id).where(Outfit.image_url == image_name)):
         return redirect(url_for('categories', error='This image is used by an outfit and cannot be deleted.'))
-
-    uploaded = db.session.scalar(select(UploadedImage).where(UploadedImage.filename == image_name))
-    if not uploaded:
-        return redirect(url_for('categories', error='Only uploaded images can be deleted. Built-in sample images are read-only.'))
-
-    db.session.delete(uploaded)
-    db.session.commit()
+    image_path = os.path.join(app.static_folder, 'images', image_name)
+    if os.path.isfile(image_path):
+        os.remove(image_path)
     return redirect(url_for('categories'))
 
 
@@ -377,6 +375,48 @@ def login():
         return redirect(request.args.get('next') or url_for('gallery'))
 
     return render_template('login.html')
+
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    """Email an expiring password reset link without exposing account existence."""
+    if request.method == 'POST':
+        email = request.form.get('email', '').strip().lower()
+        user = db.session.scalar(select(User).where(User.email == email)) if email else None
+        if user:
+            token = reset_token_serializer().dumps(user.email)
+            reset_url = url_for('reset_password', token=token, _external=True)
+            try:
+                send_password_reset_email(user, reset_url)
+            except (OSError, KeyError, ValueError, smtplib.SMTPException):
+                app.logger.exception('Unable to send password reset email.')
+        return render_template('forgot_password.html', sent=True)
+
+    return render_template('forgot_password.html')
+
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    """Validate a time-limited reset token and replace the password hash."""
+    try:
+        email = reset_token_serializer().loads(token, max_age=RESET_TOKEN_MAX_AGE)
+    except (BadSignature, SignatureExpired):
+        return render_template('reset_password.html', error='This password reset link is invalid or has expired.'), 400
+
+    user = db.session.scalar(select(User).where(User.email == email))
+    if not user:
+        return render_template('reset_password.html', error='This password reset link is invalid or has expired.'), 400
+
+    if request.method == 'POST':
+        password = request.form.get('password', '')
+        confirmation = request.form.get('confirmation', '')
+        if len(password) < 8 or password != confirmation:
+            return render_template('reset_password.html', error='Passwords must match and be at least 8 characters.'), 400
+        user.password_hash = generate_password_hash(password)
+        db.session.commit()
+        return redirect(url_for('login', reset='complete'))
+
+    return render_template('reset_password.html')
 
 
 @app.post('/logout')
@@ -624,47 +664,6 @@ def init_db_command():
     with app.app_context():
         db.create_all()
     print('Database tables created.')
-
-
-@app.cli.command('seed-db')
-def seed_db_command():
-    """Populate the database with sample outfits for testing and demonstration.
-
-    Safe to run multiple times — skips any outfit whose image_url is already
-    taken so existing data is never overwritten.
-    """
-    sample_outfits = [
-        {'name': 'Xibelani Skirt',       'category': 'Traditional', 'image_url': 'xibelani.jpg',      'quantity': 8,  'price': 45.00, 'description': 'Vibrant Tsonga ceremonial skirt worn during traditional dances.'},
-        {'name': 'Zulu Ibheshu',          'category': 'Traditional', 'image_url': 'zulu_men.jpg',      'quantity': 5,  'price': 60.00, 'description': 'Traditional Zulu men\'s rear-apron worn at ceremonies.'},
-        {'name': 'Lobola Dress',          'category': 'Women',       'image_url': 'lobola.jpg',         'quantity': 3,  'price': 120.00,'description': 'Elegant dress traditionally worn during lobola negotiations.'},
-        {'name': 'Tsonga Wedding Outfit', 'category': 'Women',       'image_url': 'wedding2.jpg',       'quantity': 2,  'price': 150.00,'description': 'Colourful Tsonga bridal attire with beadwork detail.'},
-        {'name': 'Zulu Teen Set',         'category': 'Children',    'image_url': 'zulu_teen.jpg',      'quantity': 10, 'price': 35.00, 'description': 'Youth Zulu outfit suitable for cultural events.'},
-        {'name': 'Ukuthwasa Robe',        'category': 'Traditional', 'image_url': 'ukuthwasa.jpg',      'quantity': 4,  'price': 80.00, 'description': 'White ceremonial robe worn by trainee traditional healers.'},
-        {'name': 'Tsonga Women Ensemble', 'category': 'Women',       'image_url': 'tsonga_women.jpg',   'quantity': 6,  'price': 95.00, 'description': 'Full Tsonga women\'s outfit with headwrap and beaded jewellery.'},
-        {'name': 'Izibazana Necklace Set','category': 'Accessories', 'image_url': 'izibazana.jpg',      'quantity': 15, 'price': 25.00, 'description': 'Traditional Zulu beaded necklace set worn with ceremonial dress.'},
-    ]
-
-    added = 0
-    skipped = 0
-    with app.app_context():
-        for data in sample_outfits:
-            if db.session.scalar(select(Outfit).where(Outfit.image_url == data['image_url'])):
-                skipped += 1
-                continue
-            category = get_or_create_category(data['category'])
-            outfit = Outfit(
-                name=data['name'],
-                description=data['description'],
-                image_url=data['image_url'],
-                quantity=data['quantity'],
-                price=data['price'],
-                category=category,
-            )
-            db.session.add(outfit)
-            added += 1
-        db.session.commit()
-
-    print(f'Seeded {added} outfit(s). Skipped {skipped} already-existing outfit(s).')
 
 
 if __name__ == '__main__':

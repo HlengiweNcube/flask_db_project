@@ -17,7 +17,7 @@ def test_client():
         db.create_all()
         ensure_category_summary_view()
         client = app.test_client()
-        client.post('/register', data={'username': 'test-user', 'password': 'test-password'})
+        client.post('/register', data={'username': 'test-user', 'email': 'test@example.com', 'password': 'test-password'})
         yield client
         db.session.remove()
         db.drop_all()
@@ -52,6 +52,42 @@ def test_login_explains_when_account_does_not_exist(test_client):
     assert response.status_code == 401
     assert b'No account was found with that username.' in response.data
     assert b'value="missing-user"' in response.data
+
+
+def test_registration_requires_unique_email(test_client):
+    test_client.post('/logout')
+    response = test_client.post('/register', data={
+        'username': 'another-user',
+        'email': 'test@example.com',
+        'password': 'test-password',
+    })
+
+    assert response.status_code == 400
+    assert b'That email address is already registered.' in response.data
+
+
+def test_password_reset_changes_password(test_client, monkeypatch):
+    from app import reset_token_serializer
+
+    monkeypatch.setattr('app.send_password_reset_email', lambda user, reset_url: True)
+    response = test_client.post('/forgot-password', data={'email': 'test@example.com'})
+    assert response.status_code == 200
+    assert b'If an account uses that email' in response.data
+
+    with app.app_context():
+        token = reset_token_serializer().dumps('test@example.com')
+
+    response = test_client.post(f'/reset-password/{token}', data={
+        'password': 'new-password',
+        'confirmation': 'new-password',
+    })
+    assert response.status_code == 302
+    test_client.post('/logout')
+    response = test_client.post('/login', data={
+        'username': 'test-user',
+        'password': 'new-password',
+    })
+    assert response.status_code == 302
 
 
 def test_add_form_shows_category_dropdown(test_client):

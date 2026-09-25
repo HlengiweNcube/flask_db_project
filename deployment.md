@@ -146,6 +146,21 @@ outfit is connected through the `Category.outfits` relationship.
 It also creates the `users` table used for authentication. Open `/register`
 once to create an account, then log in before managing inventory.
 
+### 4a. Configure password recovery email
+
+Set these environment variables on the web service so users can receive reset
+links:
+
+* `SMTP_HOST` — SMTP server hostname
+* `SMTP_PORT` — SMTP TLS port, normally `587`
+* `SMTP_USERNAME` — SMTP account username
+* `SMTP_PASSWORD` — SMTP account password or app password
+* `SMTP_FROM` — Sender address shown in reset emails
+
+Reset links expire after one hour. New registrations require a unique email
+address; the application adds the email column automatically for an existing
+database created before this feature was introduced.
+
 ### 5. Deploy and verify
 
 After deployment, verify the app is accessible and fully functional:

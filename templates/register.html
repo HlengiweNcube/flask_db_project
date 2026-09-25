@@ -5,7 +5,10 @@
 {% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
 <form method="POST" action="{{ url_for('register') }}">
     <label for="username">Username:</label><br>
-    <input id="username" type="text" name="username" required autocomplete="username"><br><br>
+    <input id="username" type="text" name="username" value="{{ username or '' }}" required autocomplete="username"><br><br>
+
+    <label for="email">Email address:</label><br>
+    <input id="email" type="email" name="email" value="{{ email or '' }}" required autocomplete="email"><br><br>
 
     <label for="password">Password (minimum 8 characters):</label><br>
     <input id="password" type="password" name="password" required minlength="8" autocomplete="new-password"><br><br>
