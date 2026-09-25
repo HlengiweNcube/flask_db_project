@@ -59,7 +59,7 @@ python -m flask init_db
 Populate the database with 8 sample outfits so every route has data to display:
 
 ```powershell
-python -m flask seed-db
+python -m flask --app app seed-db
 ```
 
 The command is idempotent — re-running it skips outfits whose image filename is already in use. Use it after `init-db` on a fresh database, or after clearing the database, to restore a known working state for testing.

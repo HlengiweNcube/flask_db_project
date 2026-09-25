@@ -57,7 +57,7 @@ This project documents and demonstrates:
 * `id` — Primary key
 * `name` — Outfit name
 * `description` — Text description
-* `image_url` — Filename selected from `static/images/`
+* `image_url` — Image filename resolved by the `/media/<filename>` route
 * `quantity` — Stock quantity
 * `price` — Price in Euros
 * `category_id` — Integer foreign key to `categories.id`
@@ -67,6 +67,17 @@ This project documents and demonstrates:
 * One Category → Many Outfits
 * Implemented using SQLAlchemy `relationship` and `ForeignKey`
 * Categories are reused instead of storing duplicate category text on each outfit
+
+**UploadedImage**
+
+* `id` — Primary key
+* `filename` — Required and unique uploaded filename
+* `mimetype` — Stored MIME type used when serving the image
+* `data` — Binary image bytes stored in the database
+
+Bundled sample images are read from `static/images/`. Uploaded images are
+stored in `uploaded_images` and served through `/media/<filename>`, so they
+survive Render redeploys.
 
 ---
 
@@ -184,7 +195,7 @@ python -m flask --app app init-db
 Optionally load sample outfits so all routes have data to display immediately:
 
 ```powershell
-python -m flask seed-db
+python -m flask --app app seed-db
 ```
 
 This inserts 8 sample outfits across four categories (Traditional, Women, Children, Accessories). The command is safe to re-run — it skips any outfit whose image is already assigned.
@@ -206,10 +217,11 @@ Run the automated tests:
 python -m pytest -q
 ```
 
-The suite uses an isolated in-memory SQLite database and covers the home page,
-category reuse, create/update/delete, dispatch, and invalid API input. The
-browser can then be used to verify the `/gallery`, `/add`, `/edit/<id>`,
-`/delete/<id>`, and `/high-stock` flows.
+The suite uses an isolated in-memory SQLite database and covers the homepage,
+authentication, category reuse, create/update/delete, dispatch, image
+management, password reset, reporting, and invalid API input. The browser can
+then be used to verify the `/gallery`, `/add`, `/edit/<id>`, `/delete/<id>`,
+and `/high-stock` flows.
 
 ---
 
@@ -238,6 +250,9 @@ gunicorn app:app
 5. Add environment variables:
 
 * `DATABASE_URL` — PostgreSQL connection string
+* `SECRET_KEY` — random secret used to sign sessions and reset tokens
+* `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM` —
+  optional SMTP settings for password reset email
 
 6. Deploy and verify the app on the provided Render URL
 
@@ -250,7 +265,11 @@ the hosted forms.
 
 ## ✅ Hosted App Verification
 
-The live app at **https://flask-db-project.onrender.com** was verified on 31 August 2026.
+The live app is available at **https://flask-db-project.onrender.com**. The
+GitHub repository is
+**https://github.com/HlengiweNcube/flask_db_project**. After each deployment,
+run the verification table below against the live URL and record the date in
+the submission evidence.
 
 The following routes were tested and confirmed working:
 
@@ -271,9 +290,10 @@ The following routes were tested and confirmed working:
 | `/about` | About page loads |
 | `/contact` | Contact page loads |
 
-The hosted appearance matches the local development version. The PostgreSQL
-database on Render is connected via the `DATABASE_URL` environment variable set
-in the Render dashboard — no credentials are stored in the repository.
+The PostgreSQL database on Render is connected via the `DATABASE_URL`
+environment variable set in the Render dashboard; no credentials are stored in
+the repository. Compare the hosted page at desktop and mobile widths with the
+local page after deployment.
 
 ---
 

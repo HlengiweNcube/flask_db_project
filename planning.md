@@ -63,6 +63,7 @@ Render's free web service has no persistent disk — every redeploy resets the c
 |-------|------|-------|
 | id | Integer | Primary key |
 | username | String(80) | Unique, required |
+| email | String(255) | Unique email used for password recovery |
 | password_hash | String(200) | bcrypt hash — plaintext never stored |
 
 **Category**
@@ -83,6 +84,15 @@ Render's free web service has no persistent disk — every redeploy resets the c
 | quantity | Integer | Check: >= 0 |
 | price | Float | Check: >= 0 |
 | category_id | Integer | Foreign key → `categories.id` |
+
+**UploadedImage**
+
+| Field | Type | Notes |
+|-------|------|-------|
+| id | Integer | Primary key |
+| filename | String(200) | Unique uploaded filename |
+| mimetype | String(100) | MIME type used by `/media/<filename>` |
+| data | LargeBinary | Image bytes stored in the database |
 
 ### Relationship
 
@@ -110,7 +120,7 @@ Routes were divided into functional groups:
 | Stock management | `/dispatch/<id>` | Separate from edit — only decrements quantity |
 | Category management | `/categories`, `/categories/<id>/edit`, `/categories/<id>/delete` | Keeps outfit forms clean; categories managed separately |
 | Reporting | `/high-stock`, `/category-summary` | Read-only aggregate views |
-| Image management | `/images/upload`, `/images/<filename>/rename`, `/images/<filename>/delete` | Keeps image lifecycle separate from outfit lifecycle |
+| Image management | `/images`, `/images/<filename>/rename`, `/images/<filename>/delete` | Keeps image lifecycle separate from outfit lifecycle |
 | API | `/api/add-outfit` | JSON endpoint for programmatic access |
 
 `/dispatch/<id>` was kept separate from `/edit/<id>` intentionally: dispatching stock is a single-field operation that does not require loading the full edit form.
@@ -170,7 +180,7 @@ All pages extend `base.html`, which contains the `<head>`, navigation bar, and f
 ### Phase 6: Testing
 - Added `test_app.py` with pytest covering all major routes and database operations
 - Used SQLite in-memory database for tests (no PostgreSQL required)
-- 26 tests covering: auth, CRUD, validation, category management, database-backed image upload/rename/delete, API, and reporting
+- 29 tests covering: auth, CRUD, validation, category management, database-backed image upload/rename/delete, API, gallery media, password reset, and reporting
 
 ### Phase 7: Deployment
 - Deployed to Render.com with PostgreSQL add-on
@@ -206,19 +216,29 @@ Key test areas:
 - `DATABASE_URL` is never hard-coded; it is always read from the environment
 - Passwords are hashed with bcrypt via `werkzeug.security` — the plaintext is never stored or logged
 - SQLAlchemy parameterised queries prevent SQL injection
-- `secure_filename()` from Werkzeug sanitises uploaded filenames before saving to disk
+- `secure_filename()` from Werkzeug sanitises uploaded filenames before storing them in the database
 - All write routes require login via `@login_required`
 
 Each commit will represent a clear development step.
 
 ---
 
-## 10. Future Enhancements
+## 10. Evidence and Reproducibility
 
-* User authentication system 
-* Image upload functionality
-* Search and filtering
-* Improved UI/UX design
+The local verification command is:
+
+```powershell
+python -m pytest -q
+```
+
+The pytest fixture creates a fresh in-memory SQLite database for every test,
+so results do not depend on a developer's local records. The `seed-db` Flask
+command provides repeatable sample records for manual route walkthroughs.
+The Git history provides continuous-development evidence because each feature
+was added in a separate commit and pushed to the linked GitHub repository.
+
+For hosted evidence, record the Render deployment date, live URL, tested
+routes, desktop/mobile screenshots, and deploy log after pushing to `main`.
 
 ---
 

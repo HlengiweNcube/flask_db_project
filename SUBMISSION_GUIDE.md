@@ -1,6 +1,6 @@
 # African Fashion Database Assignment - Submission
 
-## 📋 Quick Status: ✅ ALL REQUIREMENTS MET
+## 📋 Quick Status: ✅ LOCALLY VERIFIED AND DEPLOYMENT READY
 
 My Flask database application is **complete and ready for submission**. All assignment requirements have been verified and tested.
 
@@ -19,8 +19,8 @@ My Flask database application is **complete and ready for submission**. All assi
 7. **SQLAlchemy Models** - Category and Outfit with proper relationships
 8. **PostgreSQL Integration** - Full Flask-SQLAlchemy configuration
 9. **CRUD Operations** - Create, Read, Update, Delete all working
-10. **Automated Tests** - 26 pytest tests, all passing ✓
-11. **Deployment Ready** - Render.com Blueprint with automatic GitHub deploys
+10. **Automated Tests** - 29 pytest tests, all passing ✓
+11. **Deployment** - Render.com Blueprint with automatic GitHub deploys
 12. **Documentation** - README, deployment guide, docstrings
 
 ### 🚀 Bonus Features
@@ -44,7 +44,7 @@ My Flask database application is **complete and ready for submission**. All assi
 flask_db_project/
 ├── app.py                    # Main Flask application (19 route rules)
 ├── models.py                 # SQLAlchemy models (Category, Outfit)
-├── test_app.py              # Pytest tests (26 passing)
+├── test_app.py              # Pytest tests (29 passing)
 ├── requirements.txt         # All dependencies
 ├── render.yaml              # Render service, database, and auto-deploy config
 ├── README.md                # Project documentation
@@ -79,7 +79,7 @@ flask_db_project/
 All automated tests pass successfully:
 
 ```
-====== 26 passed ======
+29 passed
 ```
 
 ---
@@ -90,6 +90,18 @@ All automated tests pass successfully:
 - id (Primary Key)
 - name (String, Unique)
 - Relationship: 1-to-Many with Outfit
+
+### User Table
+- id (Primary Key)
+- username (Unique)
+- email (Unique, used for password recovery)
+- password_hash (Hashed; plaintext is never stored)
+
+### UploadedImage Table
+- id (Primary Key)
+- filename (Unique)
+- mimetype
+- data (Binary image bytes stored in PostgreSQL)
 
 ### Outfit Table
 - id (Primary Key)
@@ -116,6 +128,10 @@ All automated tests pass successfully:
 | `/about` | GET | About page |
 | `/contact` | GET | Contact page |
 | `/api/add-outfit` | POST | JSON API endpoint |
+| `/categories` | GET, POST | Manage categories and images |
+| `/forgot-password` | GET, POST | Request a time-limited reset link |
+| `/reset-password/<token>` | GET, POST | Set a new password |
+| `/media/<filename>` | GET | Serve uploaded or bundled images |
 
 ---
 
@@ -131,8 +147,11 @@ pip install -r requirements.txt
 
 ### 2. Initialize Database
 ```powershell
-# Create database tables
-flask init-db
+# Create database tables and the reporting view
+python -m flask --app app init-db
+
+# Load repeatable demo records
+python -m flask --app app seed-db
 ```
 
 ### 3. Run Application
@@ -261,7 +280,7 @@ pytest test_app.py -v
 - **HTML Templates**: 11 (exceeds 5 minimum)
 - **Database Tables**: 4 (User, Category, Outfit, UploadedImage)
 - **CRUD Operations**: 5 (Create, Read, Update, Delete, Dispatch)
-- **Tests Passing**: 26/26 (100%)
+- **Tests Passing**: 29/29 (100%)
 - **JavaScript Features**: 5+ (filtering, validation, carousel, etc.)
 - **CSS Properties**: 100+ (modern, responsive, professional)
 - **Documentation**: Complete (README, deployment guide, checklist)
