@@ -1,12 +1,14 @@
 from email.message import EmailMessage
 import smtplib
 
-from flask import Flask, abort, jsonify, render_template, request, redirect, url_for
+from io import BytesIO
+
+from flask import Flask, abort, jsonify, render_template, request, redirect, send_file, send_from_directory, url_for
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from itsdangerous import BadSignature, SignatureExpired, URLSafeTimedSerializer
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from models import db, Outfit, Category, User
+from models import db, Outfit, Category, UploadedImage, User
 from sqlalchemy import func, inspect, select, text
 import os
 
@@ -465,6 +467,19 @@ def gallery():
         categories=categories,
         selected_category=category_name
     )
+
+
+@app.route('/media/<path:filename>')
+def media(filename):
+    """Serve an uploaded image from the database or a bundled sample image."""
+    image = db.session.scalar(select(UploadedImage).where(UploadedImage.filename == filename))
+    if image:
+        return send_file(BytesIO(image.data), mimetype=image.mimetype, download_name=image.filename)
+
+    safe_filename = secure_filename(filename)
+    if safe_filename != filename:
+        abort(404)
+    return send_from_directory(os.path.join(app.static_folder, 'images'), safe_filename)
 
 
 @app.route('/add', methods=['GET', 'POST'])

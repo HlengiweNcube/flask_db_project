@@ -107,6 +107,18 @@ def test_add_form_shows_image_dropdown(test_client):
     assert b'<option value="lobola.jpg">lobola.jpg</option>' in response.data
 
 
+def test_gallery_renders_outfit_images(test_client):
+    test_client.post('/add', data={
+        'name': 'Gallery Dress', 'category': 'Women', 'image_url': 'lobola.jpg',
+        'quantity': '1', 'price': '20',
+    })
+
+    response = test_client.get('/gallery')
+
+    assert response.status_code == 200
+    assert b'/media/lobola.jpg' in response.data
+
+
 def test_add_form_explains_outfit_name(test_client):
     response = test_client.get('/add')
 
