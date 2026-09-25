@@ -408,23 +408,35 @@ in `MOBILE_TEST_EVIDENCE.md`.
 
 ### Image Sources
 
-* Wikimedia Commons (Public Domain) — https://commons.wikimedia.org
+* Wikimedia Commons — https://commons.wikimedia.org
 * Alamy — https://www.alamy.com
 * Getty Images — https://www.gettyimages.com
 
-Images are used for educational, non-commercial coursework purposes only.
+Image assets are included for educational, non-commercial coursework. Any
+third-party image remains subject to its original source licence or usage
+terms. Source-specific attribution should be retained with any image used in
+the final submitted presentation.
 
 ### Documentation and Technical References
 
-* Flask documentation — https://flask.palletsprojects.com
-* Flask-SQLAlchemy documentation — https://flask-sqlalchemy.palletsprojects.com
-* SQLAlchemy documentation — https://docs.sqlalchemy.org
-* Flask-Login documentation — https://flask-login.readthedocs.io
-* Werkzeug documentation (password hashing, `secure_filename`) — https://werkzeug.palletsprojects.com
-* PostgreSQL documentation — https://www.postgresql.org/docs
-* Render documentation (deployment, Blueprints, environment variables) — https://render.com/docs
-* MDN Web Docs (HTML, CSS, JavaScript reference) — https://developer.mozilla.org
-* pytest documentation — https://docs.pytest.org
+* Flask documentation — application setup, routing, templates, and CLI
+  commands: https://flask.palletsprojects.com
+* Flask-SQLAlchemy documentation — database initialization and model
+  integration: https://flask-sqlalchemy.palletsprojects.com
+* SQLAlchemy documentation — ORM queries, relationships, constraints, and
+  SQL expressions: https://docs.sqlalchemy.org
+* Flask-Login documentation — session-based authentication and protected
+  routes: https://flask-login.readthedocs.io
+* Werkzeug documentation — password hashing and secure filename handling:
+  https://werkzeug.palletsprojects.com
+* PostgreSQL documentation — relational constraints, views, and deployment
+  database behavior: https://www.postgresql.org/docs
+* Render documentation — Blueprint deployment, Gunicorn, PostgreSQL, and
+  environment variables: https://render.com/docs
+* MDN Web Docs — HTML forms, CSS focus states, responsive design, and
+  JavaScript APIs: https://developer.mozilla.org
+* pytest documentation — fixtures, test clients, and automated verification:
+  https://docs.pytest.org
 
 ---
 
